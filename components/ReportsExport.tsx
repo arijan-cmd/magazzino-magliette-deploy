@@ -37,7 +37,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
   const handleSalesExport = async () => {
     setSalesBusy(true);
     try {
-      await exportSalesToPDF(sales, { from: from || null, to: to || null, paymentMethod });
+      await exportSalesToPDF(sales, products, { from: from || null, to: to || null, paymentMethod });
     } finally {
       setSalesBusy(false);
     }
