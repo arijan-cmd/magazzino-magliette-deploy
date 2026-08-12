@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import { FileDown, ClipboardList, Receipt } from 'lucide-react';
+import { exportInventoryToPDF, exportSalesToPDF } from '../utils/pdfExport';
+import { PaymentMethod, Product, Sale } from '../types';
+
+interface ReportsExportProps {
+  products: Product[];
+  sales: Sale[];
+}
+
+const inputClass =
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+const checkboxLabelClass = 'flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer';
+const checkboxClass = 'w-4 h-4 rounded accent-brand-600';
+
+export default function ReportsExport({ products, sales }: ReportsExportProps) {
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [includePrices, setIncludePrices] = useState(true);
+  const [includeVariants, setIncludeVariants] = useState(true);
+  const [inventoryBusy, setInventoryBusy] = useState(false);
+
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'all' | PaymentMethod>('all');
+  const [salesBusy, setSalesBusy] = useState(false);
+
+  const handleInventoryExport = async () => {
+    setInventoryBusy(true);
+    try {
+      await exportInventoryToPDF(products, { onlyInStock, includePrices, includeVariants });
+    } finally {
+      setInventoryBusy(false);
+    }
+  };
+
+  const handleSalesExport = async () => {
+    setSalesBusy(true);
+    try {
+      await exportSalesToPDF(sales, { from: from || null, to: to || null, paymentMethod });
+    } finally {
+      setSalesBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Report</h2>
+        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Esporta i dati del magazzino in PDF</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+              <ClipboardList size={17} />
+            </div>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Report inventario</h3>
+          </div>
+          <div className="space-y-2.5">
+            <label className={checkboxLabelClass}>
+              <input type="checkbox" checked={onlyInStock} onChange={(e) => setOnlyInStock(e.target.checked)} className={checkboxClass} />
+              Solo prodotti disponibili
+            </label>
+            <label className={checkboxLabelClass}>
+              <input type="checkbox" checked={includePrices} onChange={(e) => setIncludePrices(e.target.checked)} className={checkboxClass} />
+              Includi prezzi
+            </label>
+            <label className={checkboxLabelClass}>
+              <input
+                type="checkbox"
+                checked={includeVariants}
+                onChange={(e) => setIncludeVariants(e.target.checked)}
+                className={checkboxClass}
+              />
+              Includi dettaglio varianti
+            </label>
+          </div>
+          <button
+            onClick={handleInventoryExport}
+            disabled={inventoryBusy}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
+          >
+            <FileDown size={16} /> {inventoryBusy ? 'Generazione...' : 'Esporta inventario PDF'}
+          </button>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+              <Receipt size={17} />
+            </div>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Report vendite</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass}>Dal</label>
+              <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Al</label>
+              <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} />
+            </div>
+          </div>
+          <div>
+            <label className={labelClass}>Metodo di pagamento</label>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value as 'all' | PaymentMethod)}
+              className={inputClass}
+            >
+              <option value="all">Tutti</option>
+              <option value="contanti">Contanti</option>
+              <option value="carta">Carta</option>
+            </select>
+          </div>
+          <button
+            onClick={handleSalesExport}
+            disabled={salesBusy}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
+          >
+            <FileDown size={16} /> {salesBusy ? 'Generazione...' : 'Esporta vendite PDF'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

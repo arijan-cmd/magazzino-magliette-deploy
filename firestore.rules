@@ -1,0 +1,144 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net — tutto negato di default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role == 'admin';
+    }
+
+    function isStaff() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role in ['staff', 'admin'];
+    }
+
+    // --- meta/bootstrap: singleton usato per assegnare il ruolo admin al primo utente registrato ---
+    match /meta/bootstrap {
+      allow read: if isSignedIn();
+      allow update: if isSignedIn() &&
+        existing().adminCreated == false &&
+        incoming().adminCreated == true &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['adminCreated']);
+      allow create, delete: if false;
+    }
+
+    // --- users ---
+    function isValidUser(data) {
+      return data.email is string &&
+             data.displayName is string &&
+             data.role in ['admin', 'staff'] &&
+             data.createdAt is string;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming()) && (
+        incoming().role == 'staff' ||
+        (incoming().role == 'admin' &&
+         get(/databases/$(database)/documents/meta/bootstrap).data.adminCreated == false)
+      );
+      allow update: if isAdmin() && isValidUser(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['role', 'displayName']);
+      allow delete: if false;
+    }
+
+    // --- products ---
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() <= 200 &&
+             data.sku is string && data.sku.size() <= 64 &&
+             data.category is string &&
+             data.description is string &&
+             data.salePrice is number && data.salePrice >= 0 &&
+             data.purchasePrice is number && data.purchasePrice >= 0 &&
+             data.quantity is int && data.quantity >= 0 &&
+             data.minStockLevel is int && data.minStockLevel >= 0 &&
+             data.sizes is list &&
+             data.colors is list &&
+             data.variants is map &&
+             data.images is list &&
+             data.createdAt is string &&
+             data.updatedAt is string;
+    }
+
+    match /products/{productId} {
+      allow read: if isStaff();
+      allow create: if isAdmin() && isValidProduct(incoming());
+      allow update: if isValidProduct(incoming()) && (
+        (isStaff() && !isAdmin() &&
+         incoming().diff(existing()).affectedKeys().hasOnly(['quantity', 'variants', 'updatedAt'])) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // --- productSkus: lucchetto di unicità sullo SKU (id documento = sku normalizzato) ---
+    match /productSkus/{skuId} {
+      allow read: if isStaff();
+      allow create: if isAdmin() && incoming().productId is string;
+      allow delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // --- sales ---
+    function isValidSale(data) {
+      return data.productId is string &&
+             data.productName is string &&
+             data.quantity is int && data.quantity > 0 &&
+             data.unitPrice is number && data.unitPrice >= 0 &&
+             data.commission is number && data.commission >= 0 &&
+             data.paymentMethod in ['contanti', 'carta'] &&
+             data.totalPrice is number &&
+             data.userId == request.auth.uid &&
+             data.userName is string &&
+             data.createdAt is string;
+    }
+
+    match /sales/{saleId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidSale(incoming()) &&
+                    exists(/databases/$(database)/documents/products/$(incoming().productId));
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // --- stockMovements: registro di audit, sola creazione, mai modificabile ---
+    function isValidMovement(data) {
+      return data.productId is string &&
+             data.productName is string &&
+             data.type in ['in', 'out', 'sale', 'sale-cancel'] &&
+             data.quantity is int && data.quantity > 0 &&
+             data.reason is string &&
+             data.userId == request.auth.uid &&
+             data.userName is string &&
+             data.createdAt is string;
+    }
+
+    match /stockMovements/{movementId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidMovement(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

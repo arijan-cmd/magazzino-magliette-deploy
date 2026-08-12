@@ -1,0 +1,27 @@
+{
+  "name": "magazzino-magliette-email-service",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "nodemailer": "^8.0.7"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.6",
+    "@types/nodemailer": "^8.0.0",
+    "@types/node": "^22.14.0",
+    "tsx": "^4.22.3",
+    "typescript": "~5.8.2"
+  }
+}
