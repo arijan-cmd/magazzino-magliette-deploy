@@ -13,6 +13,7 @@ import {
   Banknote,
   CreditCard,
   Percent,
+  ShoppingBag,
 } from 'lucide-react';
 import { formatCurrency, formatDate } from '../constants';
 import { MovementType, PeriodType, Product, Sale, StockMovement } from '../types';
@@ -118,8 +119,12 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
   }, [sales, period, customFrom, customTo]);
 
   const grossAmount = (s: Sale) => s.quantity * s.unitPrice;
-  const cashGross = periodSales.filter((s) => s.paymentMethod === 'contanti').reduce((sum, s) => sum + grossAmount(s), 0);
-  const cardGross = periodSales.filter((s) => s.paymentMethod === 'carta').reduce((sum, s) => sum + grossAmount(s), 0);
+  const cashSales = periodSales.filter((s) => s.paymentMethod === 'contanti');
+  const cardSales = periodSales.filter((s) => s.paymentMethod === 'carta');
+  const cashGross = cashSales.reduce((sum, s) => sum + grossAmount(s), 0);
+  const cardGross = cardSales.reduce((sum, s) => sum + grossAmount(s), 0);
+  const cashItems = cashSales.reduce((sum, s) => sum + s.quantity, 0);
+  const cardItems = cardSales.reduce((sum, s) => sum + s.quantity, 0);
   const totalCommission = periodSales.reduce((sum, s) => sum + (s.commission || 0), 0);
   const totalGross = cashGross + cardGross;
 
@@ -195,7 +200,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
 
       <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Incassi per metodo di pagamento</h3>
+          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Vendite per metodo di pagamento</h3>
           <div className="flex items-center gap-2 flex-wrap">
             <select
               value={period}
@@ -262,6 +267,33 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
             <div className="min-w-0">
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Commissioni</p>
               <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalCommission)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <ShoppingBag size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (contanti)</p>
+              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+              <ShoppingBag size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (carta)</p>
+              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cardItems}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+              <Boxes size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (totale)</p>
+              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems + cardItems}</p>
             </div>
           </div>
         </div>
