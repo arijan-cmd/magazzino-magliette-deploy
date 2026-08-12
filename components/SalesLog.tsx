@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Banknote, CreditCard, Receipt, Undo2 } from 'lucide-react';
+import { Money, CreditCard, Receipt, ArrowUUpLeft } from '@phosphor-icons/react';
 import { formatCurrency, formatDate } from '../constants';
 import { Sale } from '../types';
 
@@ -64,7 +64,7 @@ export default function SalesLog({ sales, onCancelSale }: SalesLogProps) {
                           : 'text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-500/10'
                       }`}
                     >
-                      {sale.paymentMethod === 'contanti' ? <Banknote size={12} /> : <CreditCard size={12} />}
+                      {sale.paymentMethod === 'contanti' ? <Money size={12} /> : <CreditCard size={12} />}
                       {sale.paymentMethod === 'contanti' ? 'Contanti' : 'Carta'}
                     </span>
                   </td>
@@ -99,7 +99,7 @@ export default function SalesLog({ sales, onCancelSale }: SalesLogProps) {
                           className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
                           title="Storna vendita"
                         >
-                          <Undo2 size={15} />
+                          <ArrowUUpLeft size={15} />
                         </button>
                       )}
                     </div>
@@ -110,7 +110,7 @@ export default function SalesLog({ sales, onCancelSale }: SalesLogProps) {
                 <tr>
                   <td colSpan={7} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
-                      <Receipt size={32} strokeWidth={1.5} />
+                      <Receipt size={32} />
                       <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessuna vendita registrata.</p>
                     </div>
                   </td>

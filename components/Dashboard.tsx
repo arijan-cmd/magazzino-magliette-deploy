@@ -2,19 +2,19 @@ import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useDarkMode } from '../hooks/useDarkMode';
 import {
-  AlertTriangle,
+  Warning,
   Package,
-  Euro,
-  Boxes,
+  CurrencyEur,
+  Stack,
   ShoppingCart,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Undo2,
-  Banknote,
+  ArrowCircleDown,
+  ArrowCircleUp,
+  ArrowUUpLeft,
+  Money,
   CreditCard,
   Percent,
   ShoppingBag,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import { formatCurrency, formatDate } from '../constants';
 import { MovementType, PeriodType, Product, Sale, StockMovement } from '../types';
 
@@ -37,10 +37,10 @@ const MOVEMENT_META: Record<
   MovementType,
   { icon: React.ComponentType<{ size?: number; className?: string }>; color: string }
 > = {
-  in: { icon: ArrowDownCircle, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10' },
-  out: { icon: ArrowUpCircle, color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10' },
+  in: { icon: ArrowCircleDown, color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10' },
+  out: { icon: ArrowCircleUp, color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10' },
   sale: { icon: ShoppingCart, color: 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10' },
-  'sale-cancel': { icon: Undo2, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' },
+  'sale-cancel': { icon: ArrowUUpLeft, color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10' },
 };
 
 function isSameDay(a: Date, b: Date) {
@@ -151,7 +151,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
       {lowStockProducts.length > 0 && (
         <div className="bg-red-50/70 dark:bg-red-500/10 border border-red-200 dark:border-red-900/40 rounded-2xl p-4 flex items-start gap-3">
           <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-            <AlertTriangle size={17} />
+            <Warning size={17} />
           </div>
           <div>
             <p className="text-sm font-extrabold text-red-700 dark:text-red-400 mb-1.5">
@@ -179,13 +179,13 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
           tint="bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400"
         />
         <KpiCard
-          icon={Boxes}
+          icon={Stack}
           label="Unità totali"
           value={String(totalUnits)}
           tint="bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
         />
         <KpiCard
-          icon={Euro}
+          icon={CurrencyEur}
           label="Valore magazzino"
           value={formatCurrency(stockValue)}
           tint="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -235,7 +235,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <Banknote size={18} />
+              <Money size={18} />
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Contanti (lordo)</p>
@@ -253,7 +253,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
           </div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-              <Euro size={18} />
+              <CurrencyEur size={18} />
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Totale lordo</p>
@@ -289,7 +289,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
           </div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-              <Boxes size={18} />
+              <Stack size={18} />
             </div>
             <div className="min-w-0">
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (totale)</p>

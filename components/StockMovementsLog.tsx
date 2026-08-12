@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownCircle, ArrowUpCircle, ShoppingCart, Undo2, History } from 'lucide-react';
+import { ArrowCircleDown, ArrowCircleUp, ShoppingCart, ArrowUUpLeft, ClockCounterClockwise, Icon } from '@phosphor-icons/react';
 import { formatDate } from '../constants';
 import { MovementType, StockMovement } from '../types';
 
@@ -7,11 +7,11 @@ interface StockMovementsLogProps {
   movements: StockMovement[];
 }
 
-const TYPE_META: Record<MovementType, { label: string; icon: React.ComponentType<{ size?: number }>; color: string; sign: string }> = {
-  in: { label: 'Carico', icon: ArrowDownCircle, color: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10', sign: '+' },
-  out: { label: 'Scarico', icon: ArrowUpCircle, color: 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10', sign: '-' },
+const TYPE_META: Record<MovementType, { label: string; icon: Icon; color: string; sign: string }> = {
+  in: { label: 'Carico', icon: ArrowCircleDown, color: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10', sign: '+' },
+  out: { label: 'Scarico', icon: ArrowCircleUp, color: 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10', sign: '-' },
   sale: { label: 'Vendita', icon: ShoppingCart, color: 'text-brand-700 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10', sign: '-' },
-  'sale-cancel': { label: 'Annullo vendita', icon: Undo2, color: 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10', sign: '+' },
+  'sale-cancel': { label: 'Annullo vendita', icon: ArrowUUpLeft, color: 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10', sign: '+' },
 };
 
 export default function StockMovementsLog({ movements }: StockMovementsLogProps) {
@@ -96,7 +96,7 @@ export default function StockMovementsLog({ movements }: StockMovementsLogProps)
                 <tr>
                   <td colSpan={6} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
-                      <History size={32} strokeWidth={1.5} />
+                      <ClockCounterClockwise size={32} />
                       <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun movimento registrato.</p>
                     </div>
                   </td>

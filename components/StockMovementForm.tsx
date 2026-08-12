@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { ArrowDownCircle, ArrowUpCircle, ArrowLeftRight } from 'lucide-react';
+import { ArrowCircleDown, ArrowCircleUp, ArrowsLeftRight } from '@phosphor-icons/react';
 import { MOVEMENT_REASON_PRESETS, MovementType, Product } from '../types';
 import { sortSizes, variantKey } from '../constants';
 
@@ -70,7 +70,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-          <ArrowLeftRight size={19} />
+          <ArrowsLeftRight size={19} />
         </div>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Carico / Scarico magazzino</h2>
@@ -91,7 +91,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
                 : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
-            <ArrowDownCircle size={16} /> Carico (entrata)
+            <ArrowCircleDown size={16} /> Carico (entrata)
           </button>
           <button
             type="button"
@@ -102,7 +102,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
                 : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
             }`}
           >
-            <ArrowUpCircle size={16} /> Scarico (uscita)
+            <ArrowCircleUp size={16} /> Scarico (uscita)
           </button>
         </div>
 

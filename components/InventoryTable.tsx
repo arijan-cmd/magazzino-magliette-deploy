@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import {
-  Search,
+  MagnifyingGlass,
   Plus,
-  Pencil,
-  Trash2,
-  AlertTriangle,
-  PackageSearch,
-  ChevronRight,
-  ChevronDown,
+  PencilSimple,
+  Trash,
+  Warning,
+  Package,
+  CaretRight,
+  CaretDown,
   Folder,
   FolderOpen,
-} from 'lucide-react';
+} from '@phosphor-icons/react';
 import { formatCurrency, sortSizes, variantKey } from '../constants';
 import { MovementType, Product } from '../types';
 
@@ -67,7 +67,7 @@ function ColorFolder({
         onClick={onToggle}
         className="flex items-center gap-2 w-full text-left py-1.5 px-2 rounded-lg hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
       >
-        {isOpen ? <ChevronDown size={13} className="text-slate-400" /> : <ChevronRight size={13} className="text-slate-400" />}
+        {isOpen ? <CaretDown size={13} className="text-slate-400" /> : <CaretRight size={13} className="text-slate-400" />}
         {isOpen ? (
           <FolderOpen size={15} className="text-brand-500" />
         ) : (
@@ -172,7 +172,7 @@ export default function InventoryTable({
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+          <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -235,7 +235,7 @@ export default function InventoryTable({
                             className="p-1 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 rounded transition-colors"
                             title={isExpanded ? 'Comprimi' : 'Mostra taglie e colori'}
                           >
-                            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                            {isExpanded ? <CaretDown size={16} /> : <CaretRight size={16} />}
                           </button>
                         )}
                       </td>
@@ -273,7 +273,7 @@ export default function InventoryTable({
                               : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                           }`}
                         >
-                          {lowStock && <AlertTriangle size={12} />}
+                          {lowStock && <Warning size={12} />}
                           {product.quantity}
                         </span>
                       </td>
@@ -285,7 +285,7 @@ export default function InventoryTable({
                               className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
                               title="Modifica"
                             >
-                              <Pencil size={15} />
+                              <PencilSimple size={15} />
                             </button>
                           )}
                           {isAdmin &&
@@ -313,7 +313,7 @@ export default function InventoryTable({
                                 className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                                 title="Elimina"
                               >
-                                <Trash2 size={15} />
+                                <Trash size={15} />
                               </button>
                             ))}
                         </div>
@@ -345,7 +345,7 @@ export default function InventoryTable({
                 <tr>
                   <td colSpan={7} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
-                      <PackageSearch size={32} strokeWidth={1.5} />
+                      <Package size={32} />
                       <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun prodotto trovato.</p>
                     </div>
                   </td>

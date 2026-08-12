@@ -11,11 +11,11 @@
     "deploy": "vite build && firebase deploy"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "express": "^5.2.1",
     "firebase": "^12.12.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
-    "lucide-react": "^1.11.0",
     "nodemailer": "^8.0.7",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",

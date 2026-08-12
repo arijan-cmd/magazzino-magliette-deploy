@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, User as UserIcon, Users as UsersIcon } from 'lucide-react';
+import { ShieldCheck, User as UserIcon, Users as UsersIcon } from '@phosphor-icons/react';
 import { formatDate, ROLE_LABELS } from '../constants';
 import { AppUser, UserRole } from '../types';
 

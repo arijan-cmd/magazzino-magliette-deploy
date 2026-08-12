@@ -8,17 +8,18 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import {
-  LayoutDashboard,
+  SquaresFour,
   Package,
-  ArrowLeftRight,
+  ArrowsLeftRight,
   ShoppingCart,
   FileText,
   Users,
-  LogOut,
-  AlertTriangle,
+  SignOut,
+  Warning,
   Sun,
   Moon,
-} from 'lucide-react';
+  Icon,
+} from '@phosphor-icons/react';
 import { auth } from '../services/firebase';
 import { APP_NAME, NAV_ITEMS, ROLE_LABELS } from '../constants';
 import { AppUser, ViewType } from '../types';
@@ -258,12 +259,12 @@ function LoginForm() {
   );
 }
 
-const NAV_ICONS: Record<ViewType, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
-  [ViewType.DASHBOARD]: LayoutDashboard,
+const NAV_ICONS: Record<ViewType, Icon> = {
+  [ViewType.DASHBOARD]: SquaresFour,
   [ViewType.INVENTORY]: Package,
   [ViewType.ADD_PRODUCT]: Package,
   [ViewType.EDIT_PRODUCT]: Package,
-  [ViewType.MOVEMENTS]: ArrowLeftRight,
+  [ViewType.MOVEMENTS]: ArrowsLeftRight,
   [ViewType.POS]: ShoppingCart,
   [ViewType.REPORTS]: FileText,
   [ViewType.USERS]: Users,
@@ -333,7 +334,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
                 {item.label}
                 {item.view === ViewType.INVENTORY && lowStockCount > 0 && (
                   <span className="flex items-center gap-0.5 bg-red-500 text-white text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ml-auto">
-                    <AlertTriangle size={10} /> {lowStockCount}
+                    <Warning size={10} /> {lowStockCount}
                   </span>
                 )}
               </button>
@@ -361,7 +362,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
             className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition shrink-0"
             title="Esci"
           >
-            <LogOut size={15} />
+            <SignOut size={15} />
           </button>
         </div>
       </aside>
@@ -390,7 +391,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
             className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition"
             title="Esci"
           >
-            <LogOut size={17} />
+            <SignOut size={17} />
           </button>
         </div>
       </header>
@@ -410,7 +411,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
             >
               {active && <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400" />}
               <span className="relative">
-                <Icon size={21} strokeWidth={active ? 2.4 : 2} />
+                <Icon size={21} weight={active ? 'fill' : 'duotone'} />
                 {item.view === ViewType.INVENTORY && lowStockCount > 0 && (
                   <span className="absolute -top-1 -right-1.5 min-w-[15px] h-[15px] px-[3px] flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-extrabold leading-none">
                     {lowStockCount}

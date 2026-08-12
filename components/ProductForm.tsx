@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, Plus, PackagePlus, PackageCheck, ImagePlus } from 'lucide-react';
+import { X, Plus, Package, Image } from '@phosphor-icons/react';
 import { DEFAULT_CATEGORIES, DEFAULT_SIZES, sortSizes, variantKey } from '../constants';
 import { MAX_IMAGE_SIZE_BYTES } from '../services/storage';
 import { Product } from '../types';
@@ -221,7 +221,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
     <div className="max-w-3xl">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-          {product ? <PackageCheck size={19} /> : <PackagePlus size={19} />}
+          <Package size={19} />
         </div>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
@@ -341,7 +341,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
               </div>
             ))}
             <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:border-brand-400 hover:text-brand-500 cursor-pointer transition">
-              <ImagePlus size={18} />
+              <Image size={18} />
               <span className="text-[10px] font-bold">Aggiungi</span>
               <input
                 type="file"

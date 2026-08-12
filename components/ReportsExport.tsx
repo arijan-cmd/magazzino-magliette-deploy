@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileDown, ClipboardList, Receipt } from 'lucide-react';
+import { FileArrowDown, ClipboardText, Receipt } from '@phosphor-icons/react';
 import { exportInventoryToPDF, exportSalesToPDF } from '../utils/pdfExport';
 import { PaymentMethod, Product, Sale } from '../types';
 
@@ -54,7 +54,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-              <ClipboardList size={17} />
+              <ClipboardText size={17} />
             </div>
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Report inventario</h3>
           </div>
@@ -82,7 +82,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
             disabled={inventoryBusy}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
           >
-            <FileDown size={16} /> {inventoryBusy ? 'Generazione...' : 'Esporta inventario PDF'}
+            <FileArrowDown size={16} /> {inventoryBusy ? 'Generazione...' : 'Esporta inventario PDF'}
           </button>
         </div>
 
@@ -120,7 +120,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
             disabled={salesBusy}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
           >
-            <FileDown size={16} /> {salesBusy ? 'Generazione...' : 'Esporta vendite PDF'}
+            <FileArrowDown size={16} /> {salesBusy ? 'Generazione...' : 'Esporta vendite PDF'}
           </button>
         </div>
       </div>

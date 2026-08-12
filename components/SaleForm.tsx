@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from '@phosphor-icons/react';
 import { formatCurrency, sortSizes, variantKey } from '../constants';
 import { PaymentMethod, Product } from '../types';
 
