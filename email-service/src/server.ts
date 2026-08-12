@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import nodemailer from 'nodemailer';
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
@@ -37,39 +36,22 @@ app.post('/api/send-sale-mail', async (req, res) => {
     });
   }
 
-  const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465;
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-  const smtpSecure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : true;
-  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `"Magazzino Magliette" <${smtpUser}>` : undefined);
-  const smtpTo = process.env.SMTP_TO;
+  const resendApiKey = process.env.RESEND_API_KEY;
+  const emailFrom = process.env.EMAIL_FROM || 'Magazzino Magliette <onboarding@resend.dev>';
+  const emailTo = process.env.EMAIL_TO;
 
-  console.log('[SMTP] Richiesta invio mail ricevuta per vendita di:', product.name);
+  console.log('[Email] Richiesta invio mail ricevuta per vendita di:', product.name);
 
-  if (!smtpHost || !smtpUser || !smtpPass || !smtpTo || !smtpFrom) {
-    console.warn('[SMTP] Credenziali SMTP non configurate. Salto invio email.');
+  if (!resendApiKey || !emailTo) {
+    console.warn('[Email] Credenziali non configurate. Salto invio email.');
     return res.status(200).json({
       success: false,
-      code: 'SMTP_NOT_CONFIGURED',
-      message: 'SMTP non configurato. Imposta le variabili SMTP_* sul servizio Render.',
+      code: 'EMAIL_NOT_CONFIGURED',
+      message: 'Imposta RESEND_API_KEY e EMAIL_TO sul servizio Render.',
     });
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpSecure,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
     const paymentMethodText = sale.paymentMethod === 'contanti' ? '💵 Contanti' : '💳 Carta';
     const variantText = sale.variantKey ? String(sale.variantKey).replace('-', ' / ').toUpperCase() : 'Nessuna variante';
     const saleDate = sale.createdAt ? new Date(sale.createdAt) : new Date();
@@ -144,18 +126,30 @@ app.post('/api/send-sale-mail', async (req, res) => {
       </html>
     `;
 
-    await transporter.sendMail({
-      from: smtpFrom,
-      to: smtpTo,
-      subject: `Nuova vendita: ${product.name} - €${Number(sale.totalPrice).toFixed(2)}`,
-      html: htmlContent,
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: emailFrom,
+        to: [emailTo],
+        subject: `Nuova vendita: ${product.name} - €${Number(sale.totalPrice).toFixed(2)}`,
+        html: htmlContent,
+      }),
     });
 
-    console.log('[SMTP] Email inviata correttamente a:', smtpTo);
+    if (!resendResponse.ok) {
+      const errText = await resendResponse.text();
+      throw new Error(`Resend ha risposto ${resendResponse.status}: ${errText}`);
+    }
+
+    console.log('[Email] Email inviata correttamente a:', emailTo);
     return res.status(200).json({ success: true, message: 'Email inviata con successo.' });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("[SMTP] Errore nell'invio dell'email:", error);
+    console.error("[Email] Errore nell'invio dell'email:", error);
     return res.status(500).json({ success: false, message: "Errore durante l'invio dell'email: " + message });
   }
 });
