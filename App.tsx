@@ -11,6 +11,7 @@ import ProductForm, { ProductFormValues, ProductImagesInput } from './components
 import StockMovementForm from './components/StockMovementForm';
 import StockMovementsLog from './components/StockMovementsLog';
 import SaleForm from './components/SaleForm';
+import SalesLog from './components/SalesLog';
 import ReportsExport from './components/ReportsExport';
 import UsersSettings from './components/UsersSettings';
 import { AppUser, MovementType, PaymentMethod, Product, Sale, StockMovement, UserRole, ViewType } from './types';
@@ -447,6 +448,7 @@ export default function App() {
         return (
           <div className="space-y-8">
             <SaleForm products={products} onSell={sellProduct} />
+            <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} />
           </div>
         );
       case ViewType.REPORTS:
