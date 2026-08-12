@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
-  signInWithRedirect,
+  signInWithPopup,
   signOut,
   updateProfile,
 } from 'firebase/auth';
@@ -76,9 +76,19 @@ function LoginForm() {
     setError(null);
     setGoogleSubmitting(true);
     try {
-      await signInWithRedirect(auth, new GoogleAuthProvider());
+      await signInWithPopup(auth, new GoogleAuthProvider());
     } catch (err) {
-      setError('Impossibile avviare l\'accesso con Google. Riprova.');
+      const code = (err as { code?: string }).code || '';
+      if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
+        // L'utente ha chiuso la finestra di Google: nessun errore da mostrare.
+      } else if (code.includes('popup-blocked')) {
+        setError('Il browser ha bloccato la finestra di Google. Consenti i popup per questo sito e riprova.');
+      } else if (code.includes('account-exists-with-different-credential')) {
+        setError('Esiste già un account con questa email registrato con email e password.');
+      } else {
+        setError('Impossibile accedere con Google. Riprova.');
+      }
+    } finally {
       setGoogleSubmitting(false);
     }
   };
