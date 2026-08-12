@@ -202,7 +202,7 @@ function LoginForm() {
   );
 }
 
-const NAV_ICONS: Record<ViewType, React.ComponentType<{ size?: number }>> = {
+const NAV_ICONS: Record<ViewType, React.ComponentType<{ size?: number; strokeWidth?: number }>> = {
   [ViewType.DASHBOARD]: LayoutDashboard,
   [ViewType.INVENTORY]: Package,
   [ViewType.ADD_PRODUCT]: Package,
@@ -242,11 +242,16 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
 
   const isAdmin = user.role === 'admin';
   const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+  const isNavActive = (view: ViewType) =>
+    view === ViewType.INVENTORY
+      ? activeView === ViewType.INVENTORY || activeView === ViewType.ADD_PRODUCT || activeView === ViewType.EDIT_PRODUCT
+      : activeView === view;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row transition-colors duration-200">
-      <aside className="md:w-64 bg-slate-900 text-white flex md:flex-col shrink-0 md:h-screen md:sticky md:top-0 dark:border-r dark:border-slate-950/60">
-        <div className="p-5 hidden md:flex items-center gap-3 border-b border-white/10">
+      {/* Sidebar desktop/tablet landscape */}
+      <aside className="hidden md:flex md:w-64 bg-slate-900 text-white md:flex-col shrink-0 md:h-screen md:sticky md:top-0 dark:border-r dark:border-slate-950/60">
+        <div className="p-5 flex items-center gap-3 border-b border-white/10">
           <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shrink-0">
             <Shirt size={17} strokeWidth={2.4} />
           </div>
@@ -256,15 +261,15 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           </div>
         </div>
 
-        <nav className="flex md:flex-col flex-1 overflow-x-auto md:overflow-visible md:p-3 md:gap-1">
+        <nav className="flex flex-col flex-1 p-3 gap-1">
           {visibleItems.map((item) => {
             const Icon = NAV_ICONS[item.view];
-            const active = activeView === item.view;
+            const active = isNavActive(item.view);
             return (
               <button
                 key={item.view}
                 onClick={() => onViewChange(item.view)}
-                className={`flex items-center gap-2.5 px-4 md:px-3.5 py-3 md:py-2.5 text-xs font-bold whitespace-nowrap transition-all duration-150 relative md:rounded-xl ${
+                className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold whitespace-nowrap transition-all duration-150 relative rounded-xl ${
                   active ? 'bg-brand-600 text-white shadow-card' : 'text-slate-400 hover:bg-white/5 hover:text-white'
                 }`}
               >
@@ -280,7 +285,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           })}
         </nav>
 
-        <div className="hidden md:flex items-center gap-2 p-3 mx-3 mb-3 rounded-xl bg-white/5 border border-white/10">
+        <div className="flex items-center gap-2 p-3 mx-3 mb-3 rounded-xl bg-white/5 border border-white/10">
           <div className="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-[11px] font-extrabold shrink-0">
             {getInitials(user.displayName) || 'U'}
           </div>
@@ -303,22 +308,66 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
             <LogOut size={15} />
           </button>
         </div>
+      </aside>
 
-        <div className="md:hidden flex items-center">
+      {/* Header fisso mobile/tablet portrait */}
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5 bg-white/85 dark:bg-slate-900/85 backdrop-blur-lg border-b border-slate-200/80 dark:border-slate-800">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center shrink-0">
+            <Shirt size={16} strokeWidth={2.4} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">{APP_NAME}</p>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-tight">
+              {isAdmin ? 'Admin' : 'Staff'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
           <ThemeToggle
             theme={theme}
             onToggle={toggleTheme}
-            className="flex items-center gap-2 px-4 py-3 text-xs font-bold text-slate-300 hover:bg-white/5"
+            className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition"
           />
           <button
             onClick={() => signOut(auth)}
-            className="flex items-center gap-2 px-4 py-3 text-xs font-bold text-slate-300 hover:bg-white/5"
+            className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition"
+            title="Esci"
           >
-            <LogOut size={16} /> Esci
+            <LogOut size={17} />
           </button>
         </div>
-      </aside>
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto min-w-0">
+      </header>
+
+      {/* Barra a schede fissa in basso, stile app nativa */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]">
+        {visibleItems.map((item) => {
+          const Icon = NAV_ICONS[item.view];
+          const active = isNavActive(item.view);
+          return (
+            <button
+              key={item.view}
+              onClick={() => onViewChange(item.view)}
+              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[52px] transition-colors active:bg-slate-100/70 dark:active:bg-slate-800/70 ${
+                active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-500'
+              }`}
+            >
+              {active && <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400" />}
+              <span className="relative">
+                <Icon size={21} strokeWidth={active ? 2.4 : 2} />
+                {item.view === ViewType.INVENTORY && lowStockCount > 0 && (
+                  <span className="absolute -top-1 -right-1.5 min-w-[15px] h-[15px] px-[3px] flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-extrabold leading-none">
+                    {lowStockCount}
+                  </span>
+                )}
+              </span>
+              <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <main className="flex-1 overflow-y-auto min-w-0 px-4 pt-[calc(env(safe-area-inset-top)+4rem)] pb-[calc(env(safe-area-inset-bottom)+4.75rem)] md:p-8">
         <div className="max-w-6xl mx-auto">{children}</div>
       </main>
     </div>
