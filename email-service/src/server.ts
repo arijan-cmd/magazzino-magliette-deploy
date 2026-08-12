@@ -41,6 +41,12 @@ app.post('/api/send-sale-mail', async (req, res) => {
   const emailTo = process.env.EMAIL_TO;
 
   console.log('[Email] Richiesta invio mail ricevuta per vendita di:', product.name);
+  console.log(
+    '[Email][debug] RESEND_API_KEY presente:', Boolean(resendApiKey),
+    '| lunghezza:', resendApiKey ? resendApiKey.length : 0,
+    '| EMAIL_TO presente:', Boolean(emailTo),
+    '| EMAIL_TO valore:', JSON.stringify(emailTo)
+  );
 
   if (!resendApiKey || !emailTo) {
     console.warn('[Email] Credenziali non configurate. Salto invio email.');
