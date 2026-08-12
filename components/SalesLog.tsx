@@ -5,11 +5,10 @@ import { Sale } from '../types';
 
 interface SalesLogProps {
   sales: Sale[];
-  isAdmin: boolean;
   onCancelSale: (sale: Sale) => void;
 }
 
-export default function SalesLog({ sales, isAdmin, onCancelSale }: SalesLogProps) {
+export default function SalesLog({ sales, onCancelSale }: SalesLogProps) {
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   return (
@@ -39,11 +38,9 @@ export default function SalesLog({ sales, isAdmin, onCancelSale }: SalesLogProps
                 <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
                   Data
                 </th>
-                {isAdmin && (
-                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
-                    Azioni
-                  </th>
-                )}
+                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  Azioni
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -76,44 +73,42 @@ export default function SalesLog({ sales, isAdmin, onCancelSale }: SalesLogProps
                   </td>
                   <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">{sale.userName}</td>
                   <td className="px-4 py-3 text-slate-400 dark:text-slate-500 font-medium">{formatDate(sale.createdAt)}</td>
-                  {isAdmin && (
-                    <td className="px-4 py-3">
-                      <div className="flex justify-end gap-1">
-                        {confirmCancelId === sale.id ? (
-                          <>
-                            <button
-                              onClick={() => {
-                                onCancelSale(sale);
-                                setConfirmCancelId(null);
-                              }}
-                              className="text-xs font-bold text-red-600 dark:text-red-400 px-2 hover:underline whitespace-nowrap"
-                            >
-                              Conferma storno
-                            </button>
-                            <button
-                              onClick={() => setConfirmCancelId(null)}
-                              className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
-                            >
-                              Annulla
-                            </button>
-                          </>
-                        ) : (
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      {confirmCancelId === sale.id ? (
+                        <>
                           <button
-                            onClick={() => setConfirmCancelId(sale.id)}
-                            className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
-                            title="Storna vendita"
+                            onClick={() => {
+                              onCancelSale(sale);
+                              setConfirmCancelId(null);
+                            }}
+                            className="text-xs font-bold text-red-600 dark:text-red-400 px-2 hover:underline whitespace-nowrap"
                           >
-                            <Undo2 size={15} />
+                            Conferma storno
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
+                          <button
+                            onClick={() => setConfirmCancelId(null)}
+                            className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                          >
+                            Annulla
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmCancelId(sale.id)}
+                          className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
+                          title="Storna vendita"
+                        >
+                          <Undo2 size={15} />
+                        </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
               {sales.length === 0 && (
                 <tr>
-                  <td colSpan={isAdmin ? 7 : 6} className="px-4 py-16 text-center">
+                  <td colSpan={7} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
                       <Receipt size={32} strokeWidth={1.5} />
                       <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessuna vendita registrata.</p>

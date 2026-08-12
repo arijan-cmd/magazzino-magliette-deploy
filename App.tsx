@@ -28,7 +28,7 @@ async function ensureUserProfile(fbUser: FirebaseUser): Promise<AppUser> {
     }
     const bootstrapSnap = await tx.get(bootstrapRef);
     const adminAlreadyCreated = bootstrapSnap.exists() ? !!bootstrapSnap.data().adminCreated : true;
-    const role: UserRole = adminAlreadyCreated ? 'staff' : 'admin';
+    const role: UserRole = adminAlreadyCreated ? 'venditore' : 'admin';
     const profile: AppUser = {
       uid: fbUser.uid,
       email: fbUser.email || '',
@@ -57,6 +57,7 @@ export default function App() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   const isAdmin = user?.role === 'admin';
+  const canManageStock = user?.role === 'admin' || user?.role === 'staff';
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -417,6 +418,7 @@ export default function App() {
           <InventoryTable
             products={products}
             isAdmin={isAdmin}
+            canManageStock={canManageStock}
             onEdit={goToEdit}
             onDelete={deleteProduct}
             onAdd={goToAdd}
@@ -438,17 +440,17 @@ export default function App() {
           />
         );
       case ViewType.MOVEMENTS:
-        return (
+        return canManageStock ? (
           <div className="space-y-8">
             <StockMovementForm products={products} onSubmit={createMovement} />
             <StockMovementsLog movements={movements} />
           </div>
-        );
+        ) : null;
       case ViewType.POS:
         return (
           <div className="space-y-8">
             <SaleForm products={products} onSell={sellProduct} />
-            <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} />
+            <SalesLog sales={sales} onCancelSale={cancelSale} />
           </div>
         );
       case ViewType.REPORTS:

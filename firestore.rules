@@ -34,6 +34,13 @@ service cloud.firestore {
         getUserData().role in ['staff', 'admin'];
     }
 
+    // Qualunque ruolo autenticato (admin, staff, venditore): lettura e gestione vendite
+    function isMember() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().role in ['admin', 'staff', 'venditore'];
+    }
+
     // --- meta/bootstrap: singleton usato per assegnare il ruolo admin al primo utente registrato ---
     match /meta/bootstrap {
       allow read: if isSignedIn();
@@ -48,14 +55,14 @@ service cloud.firestore {
     function isValidUser(data) {
       return data.email is string &&
              data.displayName is string &&
-             data.role in ['admin', 'staff'] &&
+             data.role in ['admin', 'staff', 'venditore'] &&
              data.createdAt is string;
     }
 
     match /users/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming()) && (
-        incoming().role == 'staff' ||
+        incoming().role == 'venditore' ||
         (incoming().role == 'admin' &&
          get(/databases/$(database)/documents/meta/bootstrap).data.adminCreated == false)
       );
@@ -83,10 +90,10 @@ service cloud.firestore {
     }
 
     match /products/{productId} {
-      allow read: if isStaff();
+      allow read: if isMember();
       allow create: if isAdmin() && isValidProduct(incoming());
       allow update: if isValidProduct(incoming()) && (
-        (isStaff() && !isAdmin() &&
+        (isMember() && !isAdmin() &&
          incoming().diff(existing()).affectedKeys().hasOnly(['quantity', 'variants', 'updatedAt'])) ||
         isAdmin()
       );
@@ -95,7 +102,7 @@ service cloud.firestore {
 
     // --- productSkus: lucchetto di unicità sullo SKU (id documento = sku normalizzato) ---
     match /productSkus/{skuId} {
-      allow read: if isStaff();
+      allow read: if isMember();
       allow create: if isAdmin() && incoming().productId is string;
       allow delete: if isAdmin();
       allow update: if false;
@@ -116,11 +123,11 @@ service cloud.firestore {
     }
 
     match /sales/{saleId} {
-      allow read: if isStaff();
-      allow create: if isStaff() && isValidSale(incoming()) &&
+      allow read: if isMember();
+      allow create: if isMember() && isValidSale(incoming()) &&
                     exists(/databases/$(database)/documents/products/$(incoming().productId));
       allow update: if false;
-      allow delete: if isAdmin();
+      allow delete: if isMember();
     }
 
     // --- stockMovements: registro di audit, sola creazione, mai modificabile ---
@@ -136,8 +143,12 @@ service cloud.firestore {
     }
 
     match /stockMovements/{movementId} {
-      allow read: if isStaff();
-      allow create: if isStaff() && isValidMovement(incoming());
+      allow read: if isMember();
+      // Staff/admin: qualunque movimento (anche carico/scarico manuale).
+      // Venditore: solo i movimenti generati da una vendita o dal suo storno.
+      allow create: if isValidMovement(incoming()) && (
+        isStaff() || (isMember() && incoming().type in ['sale', 'sale-cancel'])
+      );
       allow update, delete: if false;
     }
   }

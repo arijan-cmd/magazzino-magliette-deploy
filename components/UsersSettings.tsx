@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldCheck, User as UserIcon, Users as UsersIcon } from 'lucide-react';
-import { formatDate } from '../constants';
+import { formatDate, ROLE_LABELS } from '../constants';
 import { AppUser, UserRole } from '../types';
 
 interface UsersSettingsProps {
@@ -69,7 +69,7 @@ export default function UsersSettings({ users, currentUserId, onUpdateRole }: Us
                   {u.uid === currentUserId ? (
                     <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                       {u.role === 'admin' ? <ShieldCheck size={12} /> : <UserIcon size={12} />}
-                      {u.role === 'admin' ? 'Admin' : 'Staff'} (tu)
+                      {ROLE_LABELS[u.role]} (tu)
                     </span>
                   ) : (
                     <select
@@ -77,6 +77,7 @@ export default function UsersSettings({ users, currentUserId, onUpdateRole }: Us
                       onChange={(e) => onUpdateRole(u.uid, e.target.value as UserRole)}
                       className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                     >
+                      <option value="venditore">Venditore</option>
                       <option value="staff">Staff</option>
                       <option value="admin">Admin</option>
                     </select>

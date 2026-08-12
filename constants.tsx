@@ -1,4 +1,4 @@
-import { ViewType } from './types';
+import { UserRole, ViewType } from './types';
 
 export const APP_NAME = 'Magazzino Magliette';
 
@@ -6,13 +6,19 @@ export const DEFAULT_CATEGORIES = ['T-Shirt', 'Felpa', 'Polo', 'Canotta', 'Acces
 
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-export const NAV_ITEMS: { view: ViewType; label: string; adminOnly?: boolean }[] = [
+export const ROLE_LABELS: Record<UserRole, string> = {
+  admin: 'Admin',
+  staff: 'Staff',
+  venditore: 'Venditore',
+};
+
+export const NAV_ITEMS: { view: ViewType; label: string; roles?: UserRole[] }[] = [
   { view: ViewType.DASHBOARD, label: 'Dashboard' },
   { view: ViewType.INVENTORY, label: 'Magazzino' },
-  { view: ViewType.MOVEMENTS, label: 'Movimenti' },
+  { view: ViewType.MOVEMENTS, label: 'Movimenti', roles: ['admin', 'staff'] },
   { view: ViewType.POS, label: 'Vendite' },
   { view: ViewType.REPORTS, label: 'Report' },
-  { view: ViewType.USERS, label: 'Utenti', adminOnly: true },
+  { view: ViewType.USERS, label: 'Utenti', roles: ['admin'] },
 ];
 
 export function formatCurrency(value: number): string {

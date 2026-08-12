@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
+  signInWithRedirect,
   signOut,
   updateProfile,
 } from 'firebase/auth';
@@ -18,7 +20,7 @@ import {
   Moon,
 } from 'lucide-react';
 import { auth } from '../services/firebase';
-import { APP_NAME, NAV_ITEMS } from '../constants';
+import { APP_NAME, NAV_ITEMS, ROLE_LABELS } from '../constants';
 import { AppUser, ViewType } from '../types';
 import { applyTheme, getCurrentTheme, Theme } from '../utils/theme';
 
@@ -67,7 +69,19 @@ function LoginForm() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
   const [theme, toggleTheme] = useTheme();
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setGoogleSubmitting(true);
+    try {
+      await signInWithRedirect(auth, new GoogleAuthProvider());
+    } catch (err) {
+      setError('Impossibile avviare l\'accesso con Google. Riprova.');
+      setGoogleSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,6 +210,39 @@ function LoginForm() {
             {submitting ? 'Attendere...' : mode === 'login' ? 'Accedi' : 'Crea account'}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-5">
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">oppure</span>
+          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={googleSubmitting}
+          className="w-full flex items-center justify-center gap-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold py-2.5 rounded-xl text-sm border border-slate-200 dark:border-slate-700 shadow-softer transition-all duration-150 disabled:opacity-50 disabled:active:scale-100"
+        >
+          <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
+            <path
+              fill="#EA4335"
+              d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.9-2.26 5.36-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"
+            />
+            <path
+              fill="#34A853"
+              d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+            />
+          </svg>
+          {googleSubmitting ? 'Attendere...' : 'Continua con Google'}
+        </button>
       </div>
     </div>
   );
@@ -240,7 +287,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
   }
 
   const isAdmin = user.role === 'admin';
-  const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+  const visibleItems = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(user.role));
   const isNavActive = (view: ViewType) =>
     view === ViewType.INVENTORY
       ? activeView === ViewType.INVENTORY || activeView === ViewType.ADD_PRODUCT || activeView === ViewType.EDIT_PRODUCT
@@ -291,7 +338,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold truncate">{user.displayName}</p>
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
-              {isAdmin ? 'Admin' : 'Staff'}
+              {ROLE_LABELS[user.role]}
             </p>
           </div>
           <ThemeToggle
@@ -318,7 +365,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           <div className="min-w-0">
             <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">{APP_NAME}</p>
             <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-tight">
-              {isAdmin ? 'Admin' : 'Staff'}
+              {ROLE_LABELS[user.role]}
             </p>
           </div>
         </div>

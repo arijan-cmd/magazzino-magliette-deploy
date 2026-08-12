@@ -17,6 +17,7 @@ import { MovementType, Product } from '../types';
 interface InventoryTableProps {
   products: Product[];
   isAdmin: boolean;
+  canManageStock: boolean;
   onEdit: (product: Product) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
@@ -34,12 +35,14 @@ function ColorFolder({
   color,
   isOpen,
   onToggle,
+  canManageStock,
   onAdjustVariant,
 }: {
   product: Product;
   color: string;
   isOpen: boolean;
   onToggle: () => void;
+  canManageStock: boolean;
   onAdjustVariant: InventoryTableProps['onAdjustVariant'];
 }) {
   const colorTotal = product.sizes.reduce((sum, size) => sum + (product.variants[variantKey(color, size)] || 0), 0);
@@ -81,17 +84,21 @@ function ColorFolder({
             return (
               <div key={key} className="flex items-center justify-between gap-3 py-1 pr-2">
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Taglia {size}</span>
-                <input
-                  key={`${key}-${qty}`}
-                  type="number"
-                  min={0}
-                  defaultValue={qty}
-                  onBlur={(e) => handleAdjust(key, qty, e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-                  }}
-                  className="w-16 text-center px-1.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
-                />
+                {canManageStock ? (
+                  <input
+                    key={`${key}-${qty}`}
+                    type="number"
+                    min={0}
+                    defaultValue={qty}
+                    onBlur={(e) => handleAdjust(key, qty, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                    }}
+                    className="w-16 text-center px-1.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                  />
+                ) : (
+                  <span className="w-16 text-center px-1.5 py-1 text-slate-600 dark:text-slate-300 text-xs font-bold">{qty}</span>
+                )}
               </div>
             );
           })}
@@ -101,7 +108,15 @@ function ColorFolder({
   );
 }
 
-export default function InventoryTable({ products, isAdmin, onEdit, onDelete, onAdd, onAdjustVariant }: InventoryTableProps) {
+export default function InventoryTable({
+  products,
+  isAdmin,
+  canManageStock,
+  onEdit,
+  onDelete,
+  onAdd,
+  onAdjustVariant,
+}: InventoryTableProps) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Tutte');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -315,6 +330,7 @@ export default function InventoryTable({ products, isAdmin, onEdit, onDelete, on
                                 color={color}
                                 isOpen={expandedColors.has(`${product.id}::${color}`)}
                                 onToggle={() => toggleColor(product.id, color)}
+                                canManageStock={canManageStock}
                                 onAdjustVariant={onAdjustVariant}
                               />
                             ))}
