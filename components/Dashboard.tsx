@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useDarkMode } from '../hooks/useDarkMode';
 import {
   AlertTriangle,
   Package,
@@ -70,6 +71,7 @@ function KpiCard({
 }
 
 export default function Dashboard({ products, sales, movements, lowStockProducts }: DashboardProps) {
+  const isDark = useDarkMode();
   const totalProducts = products.length;
   const totalUnits = products.reduce((sum, p) => sum + p.quantity, 0);
   const stockValue = products.reduce((sum, p) => sum + p.quantity * p.purchasePrice, 0);
@@ -293,12 +295,13 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
                 formatter={(value) => formatCurrency(Number(value) || 0)}
                 contentStyle={{
                   borderRadius: 12,
-                  border: '1px solid #e2e8f0',
+                  border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
                   fontSize: 12,
                   boxShadow: '0 4px 16px -4px rgba(15,23,42,0.12)',
-                  background: '#ffffff',
-                  color: '#0f172a',
+                  background: isDark ? '#0f172a' : '#ffffff',
+                  color: isDark ? '#f1f5f9' : '#0f172a',
                 }}
+                labelStyle={{ color: isDark ? '#f1f5f9' : '#0f172a' }}
               />
               <Area type="monotone" dataKey="incasso" stroke="#5b63d6" fill="url(#colorIncasso)" strokeWidth={2.5} />
             </AreaChart>
