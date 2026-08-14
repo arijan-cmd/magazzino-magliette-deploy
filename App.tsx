@@ -352,11 +352,13 @@ export default function App() {
             body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
           }).catch((err) => console.warn('[Email] Invio notifica vendita non riuscito:', err));
 
-          fetch(RECEIPT_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
-          }).catch((err) => console.warn('[Scontrino] Emissione scontrino non riuscita:', err));
+          if (input.paymentMethod === 'carta') {
+            fetch(RECEIPT_API_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
+            }).catch((err) => console.warn('[Scontrino] Emissione scontrino non riuscita:', err));
+          }
         }
       }),
     [runAction, user]
