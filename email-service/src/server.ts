@@ -154,6 +154,36 @@ app.post('/api/send-sale-mail', async (req, res) => {
   }
 });
 
+// Endpoint diagnostico temporaneo: verifica solo l'autenticazione (comando "reparti"),
+// senza inviare alcun dato di vendita. Utile per isolare problemi di credenziali.
+app.get('/api/billy-test-auth', async (_req, res) => {
+  const codiceLicenza = process.env.BILLY_CODICE_LICENZA;
+  const aeUser = process.env.BILLY_AE_USER;
+  const aePassword = process.env.BILLY_AE_PASSWORD;
+  const aePin = process.env.BILLY_AE_PIN;
+
+  if (!codiceLicenza || !aeUser || !aePassword || !aePin) {
+    return res.status(200).json({ success: false, code: 'BILLY_NOT_CONFIGURED' });
+  }
+
+  try {
+    const payload = {
+      auth: { command: 'reparti', codiceLicenza },
+      utente: { ae_user: aeUser, ae_password: aePassword, ae_pin: aePin },
+    };
+    const billyResponse = await fetch('https://www.scontrinosenzacassa.it/connect/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'param=' + encodeURIComponent(JSON.stringify(payload)),
+    });
+    const billyText = await billyResponse.text();
+    return res.status(200).json({ raw: billyText, codiceLicenzaLength: codiceLicenza.length, aeUserLength: aeUser.length });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ success: false, message });
+  }
+});
+
 app.post('/api/emit-receipt', async (req, res) => {
   const { product, sale } = req.body;
 
