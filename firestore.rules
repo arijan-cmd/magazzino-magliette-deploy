@@ -79,6 +79,7 @@ service cloud.firestore {
              data.description is string &&
              data.salePrice is number && data.salePrice >= 0 &&
              data.purchasePrice is number && data.purchasePrice >= 0 &&
+             (!('aliquotaIva' in data) || data.aliquotaIva is string) &&
              data.quantity is int && data.quantity >= 0 &&
              data.minStockLevel is int && data.minStockLevel >= 0 &&
              data.sizes is list &&

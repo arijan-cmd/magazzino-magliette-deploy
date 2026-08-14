@@ -17,6 +17,7 @@ import UsersSettings from './components/UsersSettings';
 import { AppUser, MovementType, PaymentMethod, Product, Sale, StockMovement, UserRole, ViewType } from './types';
 
 const EMAIL_API_URL = import.meta.env.VITE_EMAIL_API_URL || '/api/send-sale-mail';
+const RECEIPT_API_URL = import.meta.env.VITE_RECEIPT_API_URL || '/api/emit-receipt';
 
 async function ensureUserProfile(fbUser: FirebaseUser): Promise<AppUser> {
   const userRef = doc(db, 'users', fbUser.uid);
@@ -287,13 +288,13 @@ export default function App() {
         const movementRef = doc(collection(db, 'stockMovements'));
         const nowIso = new Date().toISOString();
         const totalPrice = input.quantity * input.unitPrice - input.commission;
-        let productSnapshotForEmail: Product | null = null;
+        let productSnapshot: Product | null = null;
 
         await runTransaction(db, async (tx) => {
           const snap = await tx.get(productRef);
           if (!snap.exists()) throw new Error('Prodotto non trovato.');
           const p = snap.data() as Product;
-          productSnapshotForEmail = { ...p, id: snap.id };
+          productSnapshot = { ...p, id: snap.id };
           const variants = { ...p.variants };
           if (input.variantKey) {
             const current = variants[input.variantKey] || 0;
@@ -333,24 +334,29 @@ export default function App() {
           tx.set(movementRef, movement);
         });
 
-        if (productSnapshotForEmail) {
+        if (productSnapshot) {
+          const salePayload = {
+            variantKey: input.variantKey,
+            quantity: input.quantity,
+            unitPrice: input.unitPrice,
+            commission: input.commission,
+            paymentMethod: input.paymentMethod,
+            totalPrice,
+            userName: user.displayName,
+            createdAt: nowIso,
+          };
+
           fetch(EMAIL_API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              product: productSnapshotForEmail,
-              sale: {
-                variantKey: input.variantKey,
-                quantity: input.quantity,
-                unitPrice: input.unitPrice,
-                commission: input.commission,
-                paymentMethod: input.paymentMethod,
-                totalPrice,
-                userName: user.displayName,
-                createdAt: nowIso,
-              },
-            }),
+            body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
           }).catch((err) => console.warn('[Email] Invio notifica vendita non riuscito:', err));
+
+          fetch(RECEIPT_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
+          }).catch((err) => console.warn('[Scontrino] Emissione scontrino non riuscita:', err));
         }
       }),
     [runAction, user]

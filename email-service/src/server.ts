@@ -154,6 +154,109 @@ app.post('/api/send-sale-mail', async (req, res) => {
   }
 });
 
+app.post('/api/emit-receipt', async (req, res) => {
+  const { product, sale } = req.body;
+
+  if (!product || !sale) {
+    return res.status(400).json({
+      success: false,
+      message: 'Parametri "product" e "sale" richiesti.',
+    });
+  }
+
+  const codiceLicenza = process.env.BILLY_CODICE_LICENZA;
+  const aeUser = process.env.BILLY_AE_USER;
+  const aePassword = process.env.BILLY_AE_PASSWORD;
+  const aePin = process.env.BILLY_AE_PIN;
+  // Di default si parte in modalità TEST (scontrino fac-simile, non trasmesso all'Agenzia delle Entrate).
+  // Va impostato esplicitamente BILLY_TEST_MODE=false su Render per passare all'invio reale.
+  const testMode = process.env.BILLY_TEST_MODE !== 'false';
+
+  console.log(`[Scontrino] Richiesta emissione per vendita di: ${product.name} ${testMode ? '(TEST)' : '(REALE)'}`);
+
+  if (!codiceLicenza || !aeUser || !aePassword || !aePin) {
+    console.warn('[Scontrino] Credenziali Billy Connect non configurate. Salto emissione scontrino.');
+    return res.status(200).json({
+      success: false,
+      code: 'BILLY_NOT_CONFIGURED',
+      message: 'Imposta BILLY_CODICE_LICENZA, BILLY_AE_USER, BILLY_AE_PASSWORD, BILLY_AE_PIN sul servizio Render.',
+    });
+  }
+
+  try {
+    const quantity = Number(sale.quantity) || 0;
+    const unitPrice = Number(sale.unitPrice) || 0;
+    const totalGross = quantity * unitPrice;
+    const aliquota = product.aliquotaIva || '22';
+    const descrizione = String(product.name || '').slice(0, 60);
+
+    const payload = {
+      auth: {
+        command: 'invio',
+        codiceLicenza,
+        test: testMode,
+      },
+      utente: {
+        ae_user: aeUser,
+        ae_password: aePassword,
+        ae_pin: aePin,
+      },
+      dati: {
+        righe: [
+          {
+            quantita: String(quantity),
+            descrizione,
+            importoUnitario: unitPrice.toFixed(2),
+            sconto: '0.00',
+            aliquota: String(aliquota),
+            omaggio: false,
+            idReparto: 0,
+          },
+        ],
+        pagamenti: [
+          {
+            // 1 = contanti, 2 = pagamento elettronico (vedi documentazione Billy Connect)
+            pagamentoTipo: sale.paymentMethod === 'contanti' ? 1 : 2,
+            pagamentoImporto: totalGross.toFixed(2),
+          },
+        ],
+      },
+    };
+
+    const billyResponse = await fetch('https://www.scontrinosenzacassa.it/connect/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'param=' + encodeURIComponent(JSON.stringify(payload)),
+    });
+
+    const billyText = await billyResponse.text();
+    let billyJson: { head?: { errore?: string }; scontrino?: { numeroDocumento?: string; scontrino_pdf_url?: string } };
+    try {
+      billyJson = JSON.parse(billyText);
+    } catch {
+      throw new Error(`Risposta non valida da Billy Connect: ${billyText.slice(0, 200)}`);
+    }
+
+    if (billyJson.head?.errore) {
+      throw new Error(billyJson.head.errore);
+    }
+
+    console.log(
+      `[Scontrino] Emesso correttamente: ${billyJson.scontrino?.numeroDocumento} ${testMode ? '(TEST)' : '(REALE)'}`
+    );
+    return res.status(200).json({
+      success: true,
+      test: testMode,
+      numeroDocumento: billyJson.scontrino?.numeroDocumento,
+      scontrinoPdfUrl: billyJson.scontrino?.scontrino_pdf_url,
+    });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[Scontrino] Errore nell'emissione dello scontrino:", error);
+    return res.status(500).json({ success: false, message: "Errore durante l'emissione dello scontrino: " + message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Email service in esecuzione sulla porta ${PORT}`);
 });

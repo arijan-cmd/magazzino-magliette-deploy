@@ -16,6 +16,7 @@ export interface Product {
   description: string;
   salePrice: number;
   purchasePrice: number;
+  aliquotaIva: string; // es. "22", "10", "4", "N1"... vedi IVA_RATES
   quantity: number; // aggregato, somma delle varianti (o valore diretto se non ci sono varianti)
   minStockLevel: number;
   sizes: string[];

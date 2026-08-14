@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { X, Plus, Package, Image } from '@phosphor-icons/react';
-import { DEFAULT_CATEGORIES, DEFAULT_SIZES, sortSizes, variantKey } from '../constants';
+import { DEFAULT_CATEGORIES, DEFAULT_SIZES, IVA_RATES, sortSizes, variantKey } from '../constants';
 import { MAX_IMAGE_SIZE_BYTES } from '../services/storage';
 import { Product } from '../types';
 
@@ -111,6 +111,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
   const [description, setDescription] = useState(product?.description || '');
   const [salePrice, setSalePrice] = useState(product?.salePrice ?? 0);
   const [purchasePrice, setPurchasePrice] = useState(product?.purchasePrice ?? 0);
+  const [aliquotaIva, setAliquotaIva] = useState(product?.aliquotaIva ?? '22');
   const [minStockLevel, setMinStockLevel] = useState(product?.minStockLevel ?? 5);
   const [sizes, setSizes] = useState<string[]>(product?.sizes || []);
   const [colors, setColors] = useState<string[]>(product?.colors || []);
@@ -206,6 +207,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
         description: description.trim(),
         salePrice: Number(salePrice) || 0,
         purchasePrice: Number(purchasePrice) || 0,
+        aliquotaIva,
         quantity: totalQuantity,
         minStockLevel: Number(minStockLevel) || 0,
         sizes: sortedSizes,
@@ -285,7 +287,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className={inputClass} />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Prezzo di vendita (€)</label>
             <input
@@ -307,6 +309,16 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
               onChange={(e) => setPurchasePrice(Number(e.target.value))}
               className={inputClass}
             />
+          </div>
+          <div>
+            <label className={labelClass}>Aliquota IVA</label>
+            <select value={aliquotaIva} onChange={(e) => setAliquotaIva(e.target.value)} className={inputClass}>
+              {IVA_RATES.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

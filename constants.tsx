@@ -6,6 +6,20 @@ export const DEFAULT_CATEGORIES = ['T-Shirt', 'Felpa', 'Polo', 'Canotta', 'Acces
 
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
+// Aliquote IVA valide per lo scontrino elettronico (Billy Connect)
+export const IVA_RATES: { value: string; label: string }[] = [
+  { value: '22', label: '22%' },
+  { value: '10', label: '10%' },
+  { value: '5', label: '5%' },
+  { value: '4', label: '4%' },
+  { value: 'N1', label: 'N1 — Escluse ex art. 15' },
+  { value: 'N2', label: 'N2 — Non soggette' },
+  { value: 'N3', label: 'N3 — Non imponibili' },
+  { value: 'N4', label: 'N4 — Esenti' },
+  { value: 'N5', label: 'N5 — Regime del margine' },
+  { value: 'N6', label: 'N6 — Altro non IVA' },
+];
+
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Admin',
   staff: 'Staff',
