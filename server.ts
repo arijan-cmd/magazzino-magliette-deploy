@@ -178,7 +178,7 @@ app.post('/api/emit-receipt', async (req, res) => {
     const unitPrice = Number(sale.unitPrice) || 0;
     const totalGross = quantity * unitPrice;
     const aliquota = product.aliquotaIva || '22';
-    const descrizione = String(product.name || '').slice(0, 60);
+    const descrizione = 'Merchandising';
 
     const payload = {
       auth: {
