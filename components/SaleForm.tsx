@@ -87,8 +87,12 @@ export default function SaleForm({ products, onSell }: SaleFormProps) {
       commission,
       paymentMethod,
     });
+    setProductId('');
+    setVariant('');
     setQuantity(1);
+    setUnitPrice(0);
     setCommission(0);
+    setPaymentMethod('contanti');
     setSuccess(true);
     setTimeout(() => setSuccess(false), 2500);
   };

@@ -61,7 +61,12 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
       quantity,
       reason: finalReason,
     });
+    setProductId('');
+    setVariant('');
+    setType('in');
     setQuantity(1);
+    setReason(MOVEMENT_REASON_PRESETS[0]);
+    setCustomReason('');
     setSuccess(true);
     setTimeout(() => setSuccess(false), 2500);
   };
