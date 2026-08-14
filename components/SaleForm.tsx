@@ -13,13 +13,14 @@ interface SaleFormProps {
     commission: number;
     paymentMethod: PaymentMethod;
   }) => void;
+  initialProductId?: string | null;
 }
 
 const inputClass =
   'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
 const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
 
-export default function SaleForm({ products, onSell }: SaleFormProps) {
+export default function SaleForm({ products, onSell, initialProductId }: SaleFormProps) {
   const [productId, setProductId] = useState('');
   const [variant, setVariant] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -50,6 +51,13 @@ export default function SaleForm({ products, onSell }: SaleFormProps) {
       setUnitPrice(selectedProduct.salePrice);
     }
   }, [selectedProduct]);
+
+  useEffect(() => {
+    if (initialProductId) {
+      setProductId(initialProductId);
+      setVariant('');
+    }
+  }, [initialProductId]);
 
   const availableQuantity = selectedProduct
     ? variantKeys.length > 0

@@ -50,6 +50,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>(ViewType.DASHBOARD);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [quickSellProductId, setQuickSellProductId] = useState<string | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -417,6 +418,11 @@ export default function App() {
     setActiveView(ViewType.ADD_PRODUCT);
   };
 
+  const goToQuickSell = (productId: string) => {
+    setQuickSellProductId(productId);
+    setActiveView(ViewType.POS);
+  };
+
   const renderView = () => {
     switch (activeView) {
       case ViewType.DASHBOARD:
@@ -433,12 +439,14 @@ export default function App() {
         return (
           <InventoryTable
             products={products}
+            sales={sales}
             isAdmin={isAdmin}
             canManageStock={canManageStock}
             onEdit={goToEdit}
             onDelete={deleteProduct}
             onAdd={goToAdd}
             onAdjustVariant={createMovement}
+            onQuickSell={goToQuickSell}
           />
         );
       case ViewType.ADD_PRODUCT:
@@ -465,7 +473,7 @@ export default function App() {
       case ViewType.POS:
         return (
           <div className="space-y-8">
-            <SaleForm products={products} onSell={sellProduct} />
+            <SaleForm products={products} onSell={sellProduct} initialProductId={quickSellProductId} />
             <SalesLog sales={sales} onCancelSale={cancelSale} />
           </div>
         );
