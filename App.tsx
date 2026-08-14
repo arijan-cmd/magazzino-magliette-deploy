@@ -420,7 +420,15 @@ export default function App() {
   const renderView = () => {
     switch (activeView) {
       case ViewType.DASHBOARD:
-        return <Dashboard products={products} sales={sales} movements={movements} lowStockProducts={lowStockProducts} />;
+        return (
+          <Dashboard
+            products={products}
+            sales={sales}
+            movements={movements}
+            lowStockProducts={lowStockProducts}
+            isAdmin={isAdmin}
+          />
+        );
       case ViewType.INVENTORY:
         return (
           <InventoryTable

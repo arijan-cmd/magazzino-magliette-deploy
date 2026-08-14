@@ -31,6 +31,7 @@ interface DashboardProps {
   sales: Sale[];
   movements: StockMovement[];
   lowStockProducts: Product[];
+  isAdmin: boolean;
 }
 
 const MOVEMENT_META: Record<
@@ -71,11 +72,12 @@ function KpiCard({
   );
 }
 
-export default function Dashboard({ products, sales, movements, lowStockProducts }: DashboardProps) {
+export default function Dashboard({ products, sales, movements, lowStockProducts, isAdmin }: DashboardProps) {
   const isDark = useDarkMode();
   const totalProducts = products.length;
   const totalUnits = products.reduce((sum, p) => sum + p.quantity, 0);
   const stockValue = products.reduce((sum, p) => sum + p.quantity * p.purchasePrice, 0);
+  const stockSaleValue = products.reduce((sum, p) => sum + p.quantity * p.salePrice, 0);
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -184,12 +186,20 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
           value={String(totalUnits)}
           tint="bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
         />
-        <KpiCard
-          icon={CurrencyEur}
-          label="Valore magazzino"
-          value={formatCurrency(stockValue)}
-          tint="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-        />
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-softer hover:shadow-card transition-shadow duration-200">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <CurrencyEur size={19} />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Valore magazzino</p>
+            <p className="text-xl font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(stockValue)}</p>
+            {isAdmin && (
+              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 truncate">
+                Vendita: <span className="text-emerald-600 dark:text-emerald-400">{formatCurrency(stockSaleValue)}</span>
+              </p>
+            )}
+          </div>
+        </div>
         <KpiCard
           icon={ShoppingCart}
           label="Incassi oggi"
@@ -198,9 +208,9 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
         />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+      <div>
         <div className="flex items-center justify-between flex-wrap gap-3 mb-4">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Vendite per metodo di pagamento</h3>
+          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Fatturato e vendite</h3>
           <div className="flex items-center gap-2 flex-wrap">
             <select
               value={period}
@@ -232,68 +242,79 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
             )}
           </div>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <Money size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Contanti (lordo)</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cashGross)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-              <CreditCard size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Carta (lordo)</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cardGross)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-              <CurrencyEur size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Totale lordo</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalGross)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-              <Percent size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Commissioni</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalCommission)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <ShoppingBag size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (contanti)</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems}</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+            <h4 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">Fatturato</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <Money size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Contanti (lordo)</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cashGross)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                  <CreditCard size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Carta (lordo)</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cardGross)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+                  <CurrencyEur size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Totale lordo</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalGross)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <Percent size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Commissioni</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalCommission)}</p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-              <ShoppingBag size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (carta)</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cardItems}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
-              <Stack size={18} />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi venduti (totale)</p>
-              <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems + cardItems}</p>
+
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+            <h4 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">Vendite</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <ShoppingBag size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi (contanti)</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                  <ShoppingBag size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi (carta)</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cardItems}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+                  <Stack size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi totali</p>
+                  <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems + cardItems}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
