@@ -90,7 +90,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
     .filter((s) => new Date(s.createdAt) >= startOfMonth)
     .reduce((sum, s) => sum + s.totalPrice, 0);
 
-  const [period, setPeriod] = useState<PeriodType>(PeriodType.MONTH);
+  const [period, setPeriod] = useState<PeriodType>(PeriodType.TODAY);
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
 
