@@ -2,7 +2,7 @@ import { UserRole, ViewType } from './types';
 
 export const APP_NAME = 'Magazzino Magliette';
 
-export const DEFAULT_CATEGORIES = ['T-Shirt', 'Felpa', 'Polo', 'Canotta', 'Accessori'];
+export const DEFAULT_CATEGORIES = ['T-Shirt', 'Felpa', 'Polo', 'Canotta', 'Accessori', 'Salsa', 'Bachata'];
 
 export const DEFAULT_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
