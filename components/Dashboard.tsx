@@ -82,7 +82,7 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
   const stockValue = products.reduce((sum, p) => sum + p.quantity * p.purchasePrice, 0);
   const stockSaleValue = products.reduce((sum, p) => sum + p.quantity * p.salePrice, 0);
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
   const startOfWeek = new Date(now);
   startOfWeek.setDate(now.getDate() - 6);
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
