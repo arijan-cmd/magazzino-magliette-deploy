@@ -90,10 +90,6 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
   const revenueToday = sales
     .filter((s) => isSameDay(new Date(s.createdAt), now))
     .reduce((sum, s) => sum + s.totalPrice, 0);
-  const revenueWeek = sales.filter((s) => new Date(s.createdAt) >= startOfWeek).reduce((sum, s) => sum + s.totalPrice, 0);
-  const revenueMonth = sales
-    .filter((s) => new Date(s.createdAt) >= startOfMonth)
-    .reduce((sum, s) => sum + s.totalPrice, 0);
 
   const [period, setPeriod] = useState<PeriodType>(PeriodType.TODAY);
   const [customFrom, setCustomFrom] = useState('');
@@ -134,15 +130,67 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
   const totalGross = cashGross + cardGross;
 
   const chartData = useMemo(() => {
-    const days: { date: string; label: string; incasso: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now);
-      d.setDate(now.getDate() - i);
-      const total = sales.filter((s) => isSameDay(new Date(s.createdAt), d)).reduce((sum, s) => sum + s.totalPrice, 0);
-      days.push({ date: d.toISOString(), label: d.toLocaleDateString('it-IT', { weekday: 'short' }), incasso: total });
+    const dayLabel = (d: Date) => d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+    const monthLabel = (d: Date) => d.toLocaleDateString('it-IT', { month: 'short', year: '2-digit' });
+
+    const byMonth = (list: Sale[]) => {
+      const map = new Map<string, number>();
+      list.forEach((s) => {
+        const d = new Date(s.createdAt);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        map.set(key, (map.get(key) || 0) + grossAmount(s));
+      });
+      return Array.from(map.entries())
+        .sort(([a], [b]) => (a < b ? -1 : 1))
+        .map(([key, incasso]) => {
+          const [y, m] = key.split('-').map(Number);
+          return { label: monthLabel(new Date(y, m - 1, 1)), incasso };
+        });
+    };
+
+    const byDay = (list: Sale[], start: Date, end: Date) => {
+      const days: { label: string; incasso: number }[] = [];
+      const cur = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+      while (cur <= last && days.length < 366) {
+        const total = list.filter((s) => isSameDay(new Date(s.createdAt), cur)).reduce((sum, s) => sum + grossAmount(s), 0);
+        days.push({ label: dayLabel(cur), incasso: total });
+        cur.setDate(cur.getDate() + 1);
+      }
+      return days;
+    };
+
+    const byHour = (list: Sale[]) => {
+      const hours: { label: string; incasso: number }[] = [];
+      for (let h = 0; h < 24; h++) {
+        const total = list.filter((s) => new Date(s.createdAt).getHours() === h).reduce((sum, s) => sum + grossAmount(s), 0);
+        hours.push({ label: `${h}:00`, incasso: total });
+      }
+      return hours;
+    };
+
+    if (period === PeriodType.TODAY) return byHour(periodSales);
+    if (period === PeriodType.ALL) return byMonth(periodSales);
+
+    let start: Date;
+    let end: Date;
+    if (period === PeriodType.WEEK) {
+      start = startOfWeek;
+      end = now;
+    } else if (period === PeriodType.MONTH) {
+      start = startOfMonth;
+      end = now;
+    } else {
+      const times = periodSales.map((s) => new Date(s.createdAt).getTime());
+      start = customFrom ? new Date(customFrom) : times.length ? new Date(Math.min(...times)) : now;
+      end = customTo ? new Date(customTo) : times.length ? new Date(Math.max(...times)) : now;
     }
-    return days;
-  }, [sales, now]);
+    if (start > end) return [];
+
+    const spanDays = Math.round((end.getTime() - start.getTime()) / 86400000);
+    return spanDays > 62 ? byMonth(periodSales) : byDay(periodSales, start, end);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [periodSales, period, startOfWeek, startOfMonth, customFrom, customTo, now]);
 
   const recentActivity = useMemo(() => movements.slice(0, 8), [movements]);
 
@@ -326,14 +374,9 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Incassi ultimi 7 giorni</h3>
-            <div className="flex gap-4 text-xs font-semibold text-slate-400 dark:text-slate-500">
-              <span>
-                Settimana <span className="text-slate-700 dark:text-slate-200 font-bold">{formatCurrency(revenueWeek)}</span>
-              </span>
-              <span>
-                Mese <span className="text-slate-700 dark:text-slate-200 font-bold">{formatCurrency(revenueMonth)}</span>
-              </span>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Andamento incassi · {PERIOD_LABELS[period]}</h3>
+            <div className="text-xs font-semibold text-slate-400 dark:text-slate-500">
+              Totale <span className="text-slate-700 dark:text-slate-200 font-bold">{formatCurrency(totalGross)}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
