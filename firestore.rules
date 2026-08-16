@@ -150,7 +150,10 @@ service cloud.firestore {
       allow create: if isValidMovement(incoming()) && (
         isStaff() || (isMember() && incoming().type in ['sale', 'sale-cancel'])
       );
-      allow update, delete: if false;
+      allow update: if false;
+      // Registro di audit: la cancellazione è permessa solo all'admin,
+      // per consentire un reset volontario dello storico dalla Dashboard.
+      allow delete: if isAdmin();
     }
   }
 }

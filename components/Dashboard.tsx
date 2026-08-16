@@ -14,6 +14,7 @@ import {
   CreditCard,
   Percent,
   ShoppingBag,
+  Trash,
 } from '@phosphor-icons/react';
 import { formatCurrency, formatDate } from '../constants';
 import { MovementType, PeriodType, Product, Sale, StockMovement } from '../types';
@@ -32,6 +33,7 @@ interface DashboardProps {
   movements: StockMovement[];
   lowStockProducts: Product[];
   isAdmin: boolean;
+  onResetMovements: () => void;
 }
 
 const MOVEMENT_META: Record<
@@ -72,8 +74,9 @@ function KpiCard({
   );
 }
 
-export default function Dashboard({ products, sales, movements, lowStockProducts, isAdmin }: DashboardProps) {
+export default function Dashboard({ products, sales, movements, lowStockProducts, isAdmin, onResetMovements }: DashboardProps) {
   const isDark = useDarkMode();
+  const [confirmReset, setConfirmReset] = useState(false);
   const totalProducts = products.length;
   const totalUnits = products.reduce((sum, p) => sum + p.quantity, 0);
   const stockValue = products.reduce((sum, p) => sum + p.quantity * p.purchasePrice, 0);
@@ -362,7 +365,43 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
-          <h3 className="text-sm font-extrabold text-slate-900 dark:text-white mb-4">Attività recente</h3>
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Attività recente</h3>
+            {isAdmin && movements.length > 0 && (
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                {confirmReset ? (
+                  <>
+                    <span className="text-[11px] font-bold text-red-600 dark:text-red-400">
+                      Eliminare {movements.length} movimenti?
+                    </span>
+                    <button
+                      onClick={() => {
+                        onResetMovements();
+                        setConfirmReset(false);
+                      }}
+                      className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline"
+                    >
+                      Conferma
+                    </button>
+                    <button
+                      onClick={() => setConfirmReset(false)}
+                      className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline"
+                    >
+                      Annulla
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setConfirmReset(true)}
+                    title="Resetta storico movimenti"
+                    className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                  >
+                    <Trash size={15} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <div className="space-y-4">
             {recentActivity.map((m) => {
               const meta = MOVEMENT_META[m.type];

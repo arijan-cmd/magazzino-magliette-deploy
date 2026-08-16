@@ -406,6 +406,21 @@ export default function App() {
     [runAction]
   );
 
+  const resetMovementsHistory = useCallback(
+    () =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può resettare lo storico movimenti.');
+        const ids = movements.map((m) => m.id);
+        const chunkSize = 450;
+        for (let i = 0; i < ids.length; i += chunkSize) {
+          const batch = writeBatch(db);
+          ids.slice(i, i + chunkSize).forEach((id) => batch.delete(doc(db, 'stockMovements', id)));
+          await batch.commit();
+        }
+      }),
+    [runAction, isAdmin, movements]
+  );
+
   const lowStockProducts = products.filter((p) => p.quantity <= p.minStockLevel);
 
   const goToEdit = (product: Product) => {
@@ -433,6 +448,7 @@ export default function App() {
             movements={movements}
             lowStockProducts={lowStockProducts}
             isAdmin={isAdmin}
+            onResetMovements={resetMovementsHistory}
           />
         );
       case ViewType.INVENTORY:
