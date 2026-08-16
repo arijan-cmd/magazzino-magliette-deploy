@@ -108,6 +108,10 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
   const [name, setName] = useState(product?.name || '');
   const [sku, setSku] = useState(product?.sku || '');
   const [category, setCategory] = useState(product?.category || DEFAULT_CATEGORIES[0]);
+  const availableCategories = useMemo(
+    () => Array.from(new Set([...DEFAULT_CATEGORIES, ...products.map((p) => p.category)])).filter(Boolean).sort(),
+    [products]
+  );
   const [description, setDescription] = useState(product?.description || '');
   const [salePrice, setSalePrice] = useState(product?.salePrice ?? 0);
   const [purchasePrice, setPurchasePrice] = useState(product?.purchasePrice ?? 0);
@@ -185,8 +189,8 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!name.trim() || !sku.trim()) {
-      setError('Nome e SKU sono obbligatori.');
+    if (!name.trim() || !sku.trim() || !category.trim()) {
+      setError('Nome, SKU e categoria sono obbligatori.');
       return;
     }
     if (duplicateSku) {
@@ -203,7 +207,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
       {
         name: name.trim(),
         sku: sku.trim(),
-        category,
+        category: category.trim(),
         description: description.trim(),
         salePrice: Number(salePrice) || 0,
         purchasePrice: Number(purchasePrice) || 0,
@@ -262,13 +266,18 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Categoria</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass}>
-              {DEFAULT_CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+            <input
+              list="category-options"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Scegli o scrivi una nuova categoria..."
+              className={inputClass}
+            />
+            <datalist id="category-options">
+              {availableCategories.map((c) => (
+                <option key={c} value={c} />
               ))}
-            </select>
+            </datalist>
           </div>
           <div>
             <label className={labelClass}>Scorta minima</label>
