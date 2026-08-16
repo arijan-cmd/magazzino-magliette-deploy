@@ -116,7 +116,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
   const [salePrice, setSalePrice] = useState(product?.salePrice ?? 0);
   const [purchasePrice, setPurchasePrice] = useState(product?.purchasePrice ?? 0);
   const [aliquotaIva, setAliquotaIva] = useState(product?.aliquotaIva ?? '22');
-  const [minStockLevel, setMinStockLevel] = useState(product?.minStockLevel ?? 5);
+  const [minStockLevel, setMinStockLevel] = useState(product?.minStockLevel ?? 1);
   const [sizes, setSizes] = useState<string[]>(product?.sizes || []);
   const [colors, setColors] = useState<string[]>(product?.colors || []);
   const [variants, setVariants] = useState<Record<string, number>>(product?.variants || {});
