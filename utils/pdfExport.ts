@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable, { CellHookData } from 'jspdf-autotable';
 import { Product, Sale } from '../types';
+import { DEFAULT_SIZES } from '../constants';
 
 export interface InventoryExportOptions {
   onlyInStock: boolean;
@@ -147,12 +148,20 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
   doc.save(`report-inventario-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
-interface SalesGroupRow {
-  productId: string;
-  productName: string;
-  variantKey: string | null;
+interface VariantSubRow {
+  colore: string;
+  taglia: string;
   quantity: number;
   totalPrice: number;
+}
+
+interface SkuGroup {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  totalPrice: number;
+  variants: VariantSubRow[];
 }
 
 function splitVariantKey(variantKey: string | null): [string, string] {
@@ -160,6 +169,11 @@ function splitVariantKey(variantKey: string | null): [string, string] {
   const idx = variantKey.indexOf('-');
   if (idx === -1) return [variantKey, '-'];
   return [variantKey.slice(0, idx) || '-', variantKey.slice(idx + 1) || '-'];
+}
+
+function sizeSortIndex(taglia: string): number {
+  const idx = DEFAULT_SIZES.indexOf(taglia);
+  return idx === -1 ? DEFAULT_SIZES.length : idx;
 }
 
 export async function exportSalesToPDF(sales: Sale[], products: Product[], options: SalesExportOptions): Promise<void> {
@@ -171,24 +185,43 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
     return true;
   });
 
-  const groups = new Map<string, SalesGroupRow>();
+  const productSkuMap = new Map(products.map((p) => [p.id, p.sku]));
+  const productImageUrl = new Map(products.map((p) => [p.id, p.images[0] || null]));
+
+  const bySku = new Map<string, SkuGroup>();
   filtered.forEach((s) => {
-    const key = `${s.productId}::${s.variantKey || ''}`;
-    const existing = groups.get(key);
-    if (existing) {
-      existing.quantity += s.quantity;
-      existing.totalPrice += s.totalPrice;
-    } else {
-      groups.set(key, {
+    let group = bySku.get(s.productId);
+    if (!group) {
+      group = {
         productId: s.productId,
         productName: s.productName,
-        variantKey: s.variantKey,
-        quantity: s.quantity,
-        totalPrice: s.totalPrice,
-      });
+        sku: productSkuMap.get(s.productId) || '-',
+        quantity: 0,
+        totalPrice: 0,
+        variants: [],
+      };
+      bySku.set(s.productId, group);
     }
+    group.quantity += s.quantity;
+    group.totalPrice += s.totalPrice;
+
+    const [colore, taglia] = splitVariantKey(s.variantKey);
+    let variant = group.variants.find((v) => v.colore === colore && v.taglia === taglia);
+    if (!variant) {
+      variant = { colore, taglia, quantity: 0, totalPrice: 0 };
+      group.variants.push(variant);
+    }
+    variant.quantity += s.quantity;
+    variant.totalPrice += s.totalPrice;
   });
-  const rows = Array.from(groups.values()).sort((a, b) => b.quantity - a.quantity);
+
+  const groups = Array.from(bySku.values()).sort((a, b) => b.quantity - a.quantity);
+  groups.forEach((g) => {
+    g.variants.sort((a, b) => {
+      if (a.colore !== b.colore) return a.colore.localeCompare(b.colore);
+      return sizeSortIndex(a.taglia) - sizeSortIndex(b.taglia) || a.taglia.localeCompare(b.taglia);
+    });
+  });
 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const rangeLabel = options.from || options.to ? `${options.from || '...'} → ${options.to || '...'}` : 'tutte le date';
@@ -196,22 +229,34 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
   drawHeader(
     doc,
     'Report Vendite',
-    `Magazzino Magliette · ${rows.length} prodotti/varianti · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}`
+    `Magazzino Magliette · ${groups.length} SKU · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}`
   );
 
-  const productSkuMap = new Map(products.map((p) => [p.id, p.sku]));
-  const productImageUrl = new Map(products.map((p) => [p.id, p.images[0] || null]));
   const images = await Promise.all(
-    rows.map((r) => {
-      const url = productImageUrl.get(r.productId);
+    groups.map((g) => {
+      const url = productImageUrl.get(g.productId);
       return url ? loadImageAsDataUrl(url) : Promise.resolve(null);
     })
   );
 
-  const head = [['', 'Prodotto', 'SKU', 'Colore', 'Taglia', 'Q.tà venduta', 'Incasso']];
-  const body = rows.map((r) => {
-    const [colore, taglia] = splitVariantKey(r.variantKey);
-    return ['', r.productName, productSkuMap.get(r.productId) || '-', colore, taglia, String(r.quantity), `€${r.totalPrice.toFixed(2)}`];
+  const head = [['', 'Prodotto (SKU)', 'Colore', 'Taglia', 'Q.tà', 'Incasso']];
+  const body: (string | { content: string; colSpan: number; styles?: Record<string, unknown> })[][] = [];
+  const totalRowIndexes = new Set<number>();
+  const imageByRow = new Map<number, LoadedImage | null>();
+
+  groups.forEach((g, gi) => {
+    const rowIndex = body.length;
+    totalRowIndexes.add(rowIndex);
+    imageByRow.set(rowIndex, images[gi]);
+    body.push([
+      '',
+      { content: `${g.productName} (${g.sku}) — Totale`, colSpan: 3 },
+      String(g.quantity),
+      `€${g.totalPrice.toFixed(2)}`,
+    ]);
+    g.variants.forEach((v) => {
+      body.push(['', '', v.colore, v.taglia, String(v.quantity), `€${v.totalPrice.toFixed(2)}`]);
+    });
   });
 
   autoTable(doc, {
@@ -222,9 +267,15 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
     columnStyles: { 0: { cellWidth: IMAGE_COL_WIDTH } },
     headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248, 250, 252] },
+    didParseCell: (data) => {
+      if (data.section === 'body' && totalRowIndexes.has(data.row.index)) {
+        data.cell.styles.fontStyle = 'bold';
+        data.cell.styles.fillColor = [226, 232, 240];
+      }
+    },
     didDrawCell: (data) => {
       if (data.section === 'body' && data.column.index === 0) {
-        drawImageCell(doc, data, images[data.row.index]);
+        drawImageCell(doc, data, imageByRow.get(data.row.index) ?? null);
       }
     },
     didDrawPage: () => drawFooter(doc),
