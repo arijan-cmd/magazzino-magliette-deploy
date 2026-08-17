@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FileArrowDown, ClipboardText, Receipt } from '@phosphor-icons/react';
+import { FileArrowDown, ClipboardText, Receipt, QrCode } from '@phosphor-icons/react';
 import { exportInventoryToPDF, exportSalesToPDF } from '../utils/pdfExport';
+import { exportQrLabels } from '../utils/labelExport';
 import { PaymentMethod, Product, Sale } from '../types';
 
 interface ReportsExportProps {
@@ -41,6 +42,10 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
   const [paymentMethod, setPaymentMethod] = useState<'all' | PaymentMethod>('all');
   const [salesBusy, setSalesBusy] = useState(false);
 
+  const [labelProductId, setLabelProductId] = useState('');
+  const [labelBusy, setLabelBusy] = useState(false);
+  const [labelError, setLabelError] = useState<string | null>(null);
+
   const handleInventoryExport = async () => {
     setInventoryBusy(true);
     try {
@@ -59,6 +64,19 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
     }
   };
 
+  const handleLabelsExport = async () => {
+    setLabelBusy(true);
+    setLabelError(null);
+    try {
+      const target = labelProductId ? products.filter((p) => p.id === labelProductId) : products;
+      await exportQrLabels(target);
+    } catch (err) {
+      setLabelError((err as Error).message || 'Errore nella generazione delle etichette.');
+    } finally {
+      setLabelBusy(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -66,7 +84,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
         <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Esporta i dati del magazzino in PDF</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-w-5xl">
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
@@ -170,6 +188,43 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
           >
             <FileArrowDown size={16} /> {salesBusy ? 'Generazione...' : 'Esporta vendite PDF'}
+          </button>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+              <QrCode size={17} />
+            </div>
+            <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Etichette QR</h3>
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed">
+            Genera etichette 40×30mm (QR + SKU + colore/taglia + prezzo) per la stampante Phomemo: un'immagine per ogni
+            variante con scorta disponibile. Scarica lo ZIP, estrailo sul telefono e importa le immagini nell'app Phomemo
+            per stampare. Scansionando il QR si apre direttamente la vendita già compilata.
+          </p>
+          <div>
+            <label className={labelClass}>Prodotto</label>
+            <select value={labelProductId} onChange={(e) => setLabelProductId(e.target.value)} className={inputClass}>
+              <option value="">Tutti i prodotti con scorta disponibile</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.sku})
+                </option>
+              ))}
+            </select>
+          </div>
+          {labelError && (
+            <p className="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-900/40 rounded-lg px-3 py-2">
+              {labelError}
+            </p>
+          )}
+          <button
+            onClick={handleLabelsExport}
+            disabled={labelBusy}
+            className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
+          >
+            <FileArrowDown size={16} /> {labelBusy ? 'Generazione...' : 'Genera etichette (ZIP)'}
           </button>
         </div>
       </div>

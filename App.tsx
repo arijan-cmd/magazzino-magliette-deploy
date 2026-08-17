@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { collection, doc, onSnapshot, orderBy, query, runTransaction, updateDoc, writeBatch } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
@@ -50,7 +50,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>(ViewType.DASHBOARD);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [quickSellProductId, setQuickSellProductId] = useState<string | null>(null);
+  const [pendingSale, setPendingSale] = useState<{ productId: string; variantKey: string | null } | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -154,6 +154,27 @@ export default function App() {
       unsubUsers();
     };
   }, [user, isAdmin]);
+
+  const deepLinkHandledRef = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current || products.length === 0) return;
+    deepLinkHandledRef.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const skuParam = params.get('vendi');
+    if (skuParam) {
+      const normalizedSku = skuParam.trim().toLowerCase();
+      const product = products.find((p) => p.sku.trim().toLowerCase() === normalizedSku);
+      if (product) {
+        const varianteParam = params.get('variante');
+        const variantKeyValid = varianteParam && product.variants[varianteParam] !== undefined ? varianteParam : null;
+        setPendingSale({ productId: product.id, variantKey: variantKeyValid });
+        setActiveView(ViewType.POS);
+      }
+      const url = new URL(window.location.href);
+      url.search = '';
+      window.history.replaceState(null, '', url.toString());
+    }
+  }, [products]);
 
   const runAction = useCallback(async (fn: () => Promise<void>) => {
     setActionError(null);
@@ -434,7 +455,7 @@ export default function App() {
   };
 
   const goToQuickSell = (productId: string) => {
-    setQuickSellProductId(productId);
+    setPendingSale({ productId, variantKey: null });
     setActiveView(ViewType.POS);
   };
 
@@ -489,7 +510,12 @@ export default function App() {
       case ViewType.POS:
         return (
           <div className="space-y-8">
-            <SaleForm products={products} onSell={sellProduct} initialProductId={quickSellProductId} />
+            <SaleForm
+              products={products}
+              onSell={sellProduct}
+              initialProductId={pendingSale?.productId ?? null}
+              initialVariantKey={pendingSale?.variantKey ?? null}
+            />
             <SalesLog sales={sales} onCancelSale={cancelSale} />
           </div>
         );
