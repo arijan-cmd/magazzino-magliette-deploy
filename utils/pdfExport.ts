@@ -7,6 +7,7 @@ export interface InventoryExportOptions {
   onlyInStock: boolean;
   includePrices: boolean;
   includeVariants: boolean;
+  categories: string[]; // categorie da includere
 }
 
 export interface SalesExportOptions {
@@ -97,10 +98,17 @@ function drawFooter(doc: jsPDF) {
 }
 
 export async function exportInventoryToPDF(products: Product[], options: InventoryExportOptions): Promise<void> {
-  const filtered = options.onlyInStock ? products.filter((p) => p.quantity > 0) : products;
+  const filtered = products
+    .filter((p) => (options.onlyInStock ? p.quantity > 0 : true))
+    .filter((p) => options.categories.includes(p.category));
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  drawHeader(doc, 'Report Inventario', `Magazzino Magliette · ${filtered.length} prodotti`);
+  const allCategories = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+  const categoryLabel =
+    options.categories.length > 0 && options.categories.length < allCategories.length
+      ? ` · Categorie: ${options.categories.join(', ')}`
+      : '';
+  drawHeader(doc, 'Report Inventario', `Magazzino Magliette · ${filtered.length} prodotti${categoryLabel}`);
 
   const images = await Promise.all(
     filtered.map((p) => (p.images[0] ? loadImageAsDataUrl(p.images[0]) : Promise.resolve(null)))
