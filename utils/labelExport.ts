@@ -42,6 +42,59 @@ function fitFontSize(
   return minPx;
 }
 
+function wrapByLength(ctx: CanvasRenderingContext2D, text: string, maxLength: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxLength) {
+      current = candidate;
+      continue;
+    }
+    if (current) {
+      lines.push(current);
+      current = '';
+    }
+    if (ctx.measureText(word).width <= maxLength) {
+      current = word;
+      continue;
+    }
+    // Parola singola troppo lunga: la spezza carattere per carattere.
+    let piece = '';
+    for (const ch of word) {
+      const test = piece + ch;
+      if (ctx.measureText(test).width <= maxLength || !piece) {
+        piece = test;
+      } else {
+        lines.push(piece);
+        piece = ch;
+      }
+    }
+    current = piece;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+// Cerca il font piu' grande per cui il nome entra in al massimo 2 "righe" (colonne verticali).
+function fitVerticalName(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxLength: number,
+  maxPx: number,
+  minPx: number
+): { size: number; lines: string[] } {
+  let fallback: { size: number; lines: string[] } | null = null;
+  for (let size = maxPx; size >= minPx; size -= 1) {
+    ctx.font = `bold ${size}px Arial, sans-serif`;
+    const lines = wrapByLength(ctx, text, maxLength);
+    if (lines.length <= 2) return { size, lines };
+    fallback = { size, lines };
+  }
+  return fallback as { size: number; lines: string[] };
+}
+
 async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
   const canvas = document.createElement('canvas');
   canvas.width = LABEL_WIDTH;
@@ -83,19 +136,23 @@ async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
   const nameColHeight = nameColBottom - nameColTop;
   const nameColWidth = LABEL_WIDTH - nameColLeft - 8;
 
-  const nomeSize = fitFontSize(ctx, spec.nome, nameColHeight, 30, 8, true);
+  const { size: nomeSize, lines: nomeLines } = fitVerticalName(ctx, spec.nome, nameColHeight, 32, 8);
   ctx.font = `bold ${nomeSize}px Arial, sans-serif`;
-  const nomeLength = ctx.measureText(spec.nome).width;
-  const originX = nameColLeft + nameColWidth / 2;
-  const originY = nameColTop + (nameColHeight + nomeLength) / 2;
+  const colWidth = nameColWidth / nomeLines.length;
 
-  ctx.save();
-  ctx.translate(originX, originY);
-  ctx.rotate(-Math.PI / 2);
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(spec.nome, 0, 0);
-  ctx.restore();
+  nomeLines.forEach((line, i) => {
+    const lineLength = ctx.measureText(line).width;
+    const colCenterX = nameColLeft + colWidth * i + colWidth / 2;
+    const originY = nameColTop + (nameColHeight + lineLength) / 2;
+
+    ctx.save();
+    ctx.translate(colCenterX, originY);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(line, 0, 0);
+    ctx.restore();
+  });
 
   return canvas;
 }
