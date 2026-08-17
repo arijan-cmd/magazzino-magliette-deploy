@@ -11,7 +11,7 @@ const MARGIN = 14;
 
 interface LabelSpec {
   fileName: string;
-  sku: string;
+  nome: string;
   colore: string;
   taglia: string;
   prezzo: number;
@@ -42,6 +42,58 @@ function fitFontSize(
   return minPx;
 }
 
+function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (ctx.measureText(candidate).width <= maxWidth) {
+      current = candidate;
+      continue;
+    }
+    if (current) {
+      lines.push(current);
+      current = '';
+    }
+    if (ctx.measureText(word).width <= maxWidth) {
+      current = word;
+      continue;
+    }
+    // Parola singola troppo larga: la spezza carattere per carattere.
+    let piece = '';
+    for (const ch of word) {
+      const test = piece + ch;
+      if (ctx.measureText(test).width <= maxWidth || !piece) {
+        piece = test;
+      } else {
+        lines.push(piece);
+        piece = ch;
+      }
+    }
+    current = piece;
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function fitWrappedName(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxPx: number,
+  minPx: number
+): { size: number; lines: string[] } {
+  let fallback: { size: number; lines: string[] } | null = null;
+  for (let size = maxPx; size >= minPx; size -= 1) {
+    ctx.font = `bold ${size}px Arial, sans-serif`;
+    const lines = wrapText(ctx, text, maxWidth);
+    if (lines.length <= 2) return { size, lines };
+    fallback = { size, lines };
+  }
+  return fallback as { size: number; lines: string[] };
+}
+
 async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
   const canvas = document.createElement('canvas');
   canvas.width = LABEL_WIDTH;
@@ -60,22 +112,37 @@ async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
 
   const textX = MARGIN + QR_SIZE + 10;
   const maxTextWidth = LABEL_WIDTH - textX - 8;
-  ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
 
-  const skuSize = fitFontSize(ctx, spec.sku, maxTextWidth, 22, 9, true);
-  ctx.font = `bold ${skuSize}px Arial, sans-serif`;
-  ctx.fillText(spec.sku, textX, 55);
-
+  const { size: nomeSize, lines: nomeLines } = fitWrappedName(ctx, spec.nome, maxTextWidth, 15, 8);
   const varianteText = `${spec.colore} / ${spec.taglia}`;
-  const varSize = fitFontSize(ctx, varianteText, maxTextWidth, 17, 8, false);
-  ctx.font = `${varSize}px Arial, sans-serif`;
-  ctx.fillText(varianteText, textX, 115);
-
+  const varSize = fitFontSize(ctx, varianteText, maxTextWidth, 14, 8, false);
   const prezzoText = `€ ${spec.prezzo.toFixed(2)}`;
-  const prezzoSize = fitFontSize(ctx, prezzoText, maxTextWidth, 20, 9, true);
+  const prezzoSize = fitFontSize(ctx, prezzoText, maxTextWidth, 18, 9, true);
+
+  const gap = 6;
+  const nomeLineHeight = nomeSize * 1.15;
+  const varLineHeight = varSize * 1.15;
+  const prezzoLineHeight = prezzoSize * 1.15;
+  const totalHeight = nomeLines.length * nomeLineHeight + gap + varLineHeight + gap + prezzoLineHeight;
+  const contentTop = 12;
+  const contentAvailable = LABEL_HEIGHT - 2 * contentTop;
+  let cursorY = contentTop + Math.max(0, (contentAvailable - totalHeight) / 2);
+
+  ctx.font = `bold ${nomeSize}px Arial, sans-serif`;
+  nomeLines.forEach((line) => {
+    ctx.fillText(line, textX, cursorY);
+    cursorY += nomeLineHeight;
+  });
+  cursorY += gap;
+
+  ctx.font = `${varSize}px Arial, sans-serif`;
+  ctx.fillText(varianteText, textX, cursorY);
+  cursorY += varLineHeight + gap;
+
   ctx.font = `bold ${prezzoSize}px Arial, sans-serif`;
-  ctx.fillText(prezzoText, textX, 175);
+  ctx.fillText(prezzoText, textX, cursorY);
 
   return canvas;
 }
@@ -110,7 +177,7 @@ export async function exportQrLabels(products: Product[]): Promise<void> {
           if (qty <= 0) return;
           specs.push({
             fileName: `${slugify(p.sku)}_${slugify(colore)}_${slugify(taglia)}`,
-            sku: p.sku,
+            nome: p.name,
             colore,
             taglia,
             prezzo: p.salePrice,
@@ -121,7 +188,7 @@ export async function exportQrLabels(products: Product[]): Promise<void> {
     } else if (p.quantity > 0) {
       specs.push({
         fileName: slugify(p.sku),
-        sku: p.sku,
+        nome: p.name,
         colore: '-',
         taglia: '-',
         prezzo: p.salePrice,

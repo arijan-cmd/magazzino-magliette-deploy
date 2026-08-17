@@ -199,7 +199,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Etichette QR</h3>
           </div>
           <p className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed">
-            Genera etichette 40×30mm (QR + SKU + colore/taglia + prezzo) per la stampante Phomemo: un'immagine per ogni
+            Genera etichette 40×30mm (QR + nome prodotto + colore/taglia + prezzo) per la stampante Phomemo: un'immagine per ogni
             variante con scorta disponibile. Scarica lo ZIP, estrailo sul telefono e importa le immagini nell'app Phomemo
             per stampare. Scansionando il QR si apre direttamente la vendita già compilata.
           </p>
