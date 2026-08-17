@@ -6,7 +6,7 @@ import { sortSizes, variantKey } from '../constants';
 // Etichetta 40x30mm alla risoluzione 203dpi della Phomemo M220 (~8 px/mm).
 const LABEL_WIDTH = 320;
 const LABEL_HEIGHT = 240;
-const QR_SIZE = 200;
+const QR_SIZE = 170;
 const MARGIN = 14;
 
 interface LabelSpec {
@@ -42,58 +42,6 @@ function fitFontSize(
   return minPx;
 }
 
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (ctx.measureText(candidate).width <= maxWidth) {
-      current = candidate;
-      continue;
-    }
-    if (current) {
-      lines.push(current);
-      current = '';
-    }
-    if (ctx.measureText(word).width <= maxWidth) {
-      current = word;
-      continue;
-    }
-    // Parola singola troppo larga: la spezza carattere per carattere.
-    let piece = '';
-    for (const ch of word) {
-      const test = piece + ch;
-      if (ctx.measureText(test).width <= maxWidth || !piece) {
-        piece = test;
-      } else {
-        lines.push(piece);
-        piece = ch;
-      }
-    }
-    current = piece;
-  }
-  if (current) lines.push(current);
-  return lines;
-}
-
-function fitWrappedName(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  maxWidth: number,
-  maxPx: number,
-  minPx: number
-): { size: number; lines: string[] } {
-  let fallback: { size: number; lines: string[] } | null = null;
-  for (let size = maxPx; size >= minPx; size -= 1) {
-    ctx.font = `bold ${size}px Arial, sans-serif`;
-    const lines = wrapText(ctx, text, maxWidth);
-    if (lines.length <= 2) return { size, lines };
-    fallback = { size, lines };
-  }
-  return fallback as { size: number; lines: string[] };
-}
-
 async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
   const canvas = document.createElement('canvas');
   canvas.width = LABEL_WIDTH;
@@ -105,44 +53,49 @@ async function renderLabelCanvas(spec: LabelSpec): Promise<HTMLCanvasElement> {
   ctx.fillRect(0, 0, LABEL_WIDTH, LABEL_HEIGHT);
   ctx.fillStyle = '#000000';
 
+  // QR in alto a sinistra.
   const qrDataUrl = await QRCode.toDataURL(spec.url, { margin: 0, width: QR_SIZE, color: { dark: '#000000', light: '#ffffff' } });
   const qrImg = await loadImage(qrDataUrl);
-  const qrY = Math.round((LABEL_HEIGHT - QR_SIZE) / 2);
-  ctx.drawImage(qrImg, MARGIN, qrY, QR_SIZE, QR_SIZE);
+  const qrTop = 14;
+  ctx.drawImage(qrImg, MARGIN, qrTop, QR_SIZE, QR_SIZE);
 
-  const textX = MARGIN + QR_SIZE + 10;
-  const maxTextWidth = LABEL_WIDTH - textX - 8;
+  // Colore/taglia + prezzo, in orizzontale, sotto al QR.
+  const stripTop = qrTop + QR_SIZE + 8;
+  const stripWidth = QR_SIZE;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
 
-  const { size: nomeSize, lines: nomeLines } = fitWrappedName(ctx, spec.nome, maxTextWidth, 15, 8);
   const varianteText = `${spec.colore} / ${spec.taglia}`;
-  const varSize = fitFontSize(ctx, varianteText, maxTextWidth, 14, 8, false);
-  const prezzoText = `€ ${spec.prezzo.toFixed(2)}`;
-  const prezzoSize = fitFontSize(ctx, prezzoText, maxTextWidth, 18, 9, true);
-
-  const gap = 6;
-  const nomeLineHeight = nomeSize * 1.15;
-  const varLineHeight = varSize * 1.15;
-  const prezzoLineHeight = prezzoSize * 1.15;
-  const totalHeight = nomeLines.length * nomeLineHeight + gap + varLineHeight + gap + prezzoLineHeight;
-  const contentTop = 12;
-  const contentAvailable = LABEL_HEIGHT - 2 * contentTop;
-  let cursorY = contentTop + Math.max(0, (contentAvailable - totalHeight) / 2);
-
-  ctx.font = `bold ${nomeSize}px Arial, sans-serif`;
-  nomeLines.forEach((line) => {
-    ctx.fillText(line, textX, cursorY);
-    cursorY += nomeLineHeight;
-  });
-  cursorY += gap;
-
+  const varSize = fitFontSize(ctx, varianteText, stripWidth, 16, 9, false);
   ctx.font = `${varSize}px Arial, sans-serif`;
-  ctx.fillText(varianteText, textX, cursorY);
-  cursorY += varLineHeight + gap;
+  ctx.fillText(varianteText, MARGIN, stripTop);
 
+  const prezzoText = `€ ${spec.prezzo.toFixed(2)}`;
+  const prezzoSize = fitFontSize(ctx, prezzoText, stripWidth, 20, 10, true);
   ctx.font = `bold ${prezzoSize}px Arial, sans-serif`;
-  ctx.fillText(prezzoText, textX, cursorY);
+  ctx.fillText(prezzoText, MARGIN, stripTop + varSize * 1.15 + 4);
+
+  // Nome prodotto in verticale (si legge inclinando la testa a destra), sulla colonna
+  // a destra del QR: sfrutta tutta l'altezza dell'etichetta per un carattere piu' grande.
+  const nameColLeft = MARGIN + QR_SIZE + 12;
+  const nameColTop = 10;
+  const nameColBottom = LABEL_HEIGHT - 10;
+  const nameColHeight = nameColBottom - nameColTop;
+  const nameColWidth = LABEL_WIDTH - nameColLeft - 8;
+
+  const nomeSize = fitFontSize(ctx, spec.nome, nameColHeight, 30, 8, true);
+  ctx.font = `bold ${nomeSize}px Arial, sans-serif`;
+  const nomeLength = ctx.measureText(spec.nome).width;
+  const originX = nameColLeft + nameColWidth / 2;
+  const originY = nameColTop + (nameColHeight + nomeLength) / 2;
+
+  ctx.save();
+  ctx.translate(originX, originY);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(spec.nome, 0, 0);
+  ctx.restore();
 
   return canvas;
 }
