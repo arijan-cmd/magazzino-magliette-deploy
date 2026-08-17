@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { useDarkMode } from '../hooks/useDarkMode';
 import {
-  Warning,
   Package,
   CurrencyEur,
   Stack,
@@ -31,7 +30,6 @@ interface DashboardProps {
   products: Product[];
   sales: Sale[];
   movements: StockMovement[];
-  lowStockProducts: Product[];
   isAdmin: boolean;
   onResetMovements: () => void;
 }
@@ -74,7 +72,7 @@ function KpiCard({
   );
 }
 
-export default function Dashboard({ products, sales, movements, lowStockProducts, isAdmin, onResetMovements }: DashboardProps) {
+export default function Dashboard({ products, sales, movements, isAdmin, onResetMovements }: DashboardProps) {
   const isDark = useDarkMode();
   const [confirmReset, setConfirmReset] = useState(false);
   const totalProducts = products.length;
@@ -200,29 +198,6 @@ export default function Dashboard({ products, sales, movements, lowStockProducts
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
         <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Panoramica del tuo magazzino</p>
       </div>
-
-      {lowStockProducts.length > 0 && (
-        <div className="bg-red-50/70 dark:bg-red-500/10 border border-red-200 dark:border-red-900/40 rounded-2xl p-4 flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-            <Warning size={17} />
-          </div>
-          <div>
-            <p className="text-sm font-extrabold text-red-700 dark:text-red-400 mb-1.5">
-              {lowStockProducts.length} prodott{lowStockProducts.length === 1 ? 'o' : 'i'} sotto la scorta minima
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {lowStockProducts.map((p) => (
-                <span
-                  key={p.id}
-                  className="text-xs font-semibold bg-white dark:bg-slate-900 border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 px-2.5 py-1 rounded-full"
-                >
-                  {p.name}: {p.quantity} / min {p.minStockLevel}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard

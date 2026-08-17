@@ -477,7 +477,6 @@ export default function App() {
             products={products}
             sales={sales}
             movements={movements}
-            lowStockProducts={lowStockProducts}
             isAdmin={isAdmin}
             onResetMovements={resetMovementsHistory}
           />
