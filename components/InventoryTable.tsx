@@ -14,6 +14,7 @@ import {
   SquaresFour,
   TrendUp,
   ShoppingBag,
+  QrCode,
 } from '@phosphor-icons/react';
 import { formatCurrency, sortSizes, variantKey } from '../constants';
 import { MovementType, Product, Sale } from '../types';
@@ -135,6 +136,8 @@ function ProductCard({
   onDelete,
   onAdjustVariant,
   onQuickSell,
+  onPrintLabel,
+  printingId,
 }: {
   product: Product;
   soldCount: number;
@@ -146,6 +149,8 @@ function ProductCard({
   onDelete: (id: string) => void;
   onAdjustVariant: InventoryTableProps['onAdjustVariant'];
   onQuickSell: (productId: string) => void;
+  onPrintLabel: (product: Product) => void;
+  printingId: string | null;
 }) {
   const status = getStockStatus(product);
   const hasVariants = product.sizes.length > 0 && product.colors.length > 0;
@@ -245,16 +250,28 @@ function ProductCard({
             <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Giacenza tot</p>
             <p className="text-lg font-extrabold text-slate-900 dark:text-white">{product.quantity}</p>
           </div>
-          {isAdmin && (
+          {(isAdmin || canManageStock) && (
             <div className="flex items-center gap-1">
-              <button
-                onClick={() => onEdit(product)}
-                className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
-                title="Modifica"
-              >
-                <PencilSimple size={15} />
-              </button>
-              {confirmDeleteId === product.id ? (
+              {canManageStock && (
+                <button
+                  onClick={() => onPrintLabel(product)}
+                  disabled={printingId === product.id || product.quantity === 0}
+                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                  title="Stampa etichetta"
+                >
+                  <QrCode size={15} />
+                </button>
+              )}
+              {isAdmin && (
+                <button
+                  onClick={() => onEdit(product)}
+                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
+                  title="Modifica"
+                >
+                  <PencilSimple size={15} />
+                </button>
+              )}
+              {isAdmin && (confirmDeleteId === product.id ? (
                 <>
                   <button
                     onClick={() => {
@@ -280,7 +297,7 @@ function ProductCard({
                 >
                   <Trash size={15} />
                 </button>
-              )}
+              ))}
             </div>
           )}
         </div>
@@ -314,6 +331,21 @@ export default function InventoryTable({
   const [expandedProducts, setExpandedProducts] = useState<Set<string>>(new Set());
   const [expandedColors, setExpandedColors] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [printingId, setPrintingId] = useState<string | null>(null);
+  const [printError, setPrintError] = useState<string | null>(null);
+
+  const onPrintLabel = async (product: Product) => {
+    setPrintingId(product.id);
+    setPrintError(null);
+    try {
+      const { exportQrLabels } = await import('../utils/labelExport');
+      await exportQrLabels([product]);
+    } catch (err) {
+      setPrintError((err as Error).message || "Errore nella generazione dell'etichetta.");
+    } finally {
+      setPrintingId(null);
+    }
+  };
 
   const categories = useMemo(() => ['Tutte', ...Array.from(new Set(products.map((p) => p.category)))], [products]);
 
@@ -367,6 +399,18 @@ export default function InventoryTable({
           </button>
         )}
       </div>
+
+      {printError && (
+        <div className="mb-5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-sm font-semibold px-4 py-3 rounded-xl flex justify-between items-center shadow-softer">
+          <span>{printError}</span>
+          <button
+            onClick={() => setPrintError(null)}
+            className="font-bold ml-4 text-red-400 dark:text-red-500 hover:text-red-700 dark:hover:text-red-300 transition"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
@@ -438,6 +482,8 @@ export default function InventoryTable({
                 onDelete={onDelete}
                 onAdjustVariant={onAdjustVariant}
                 onQuickSell={onQuickSell}
+                onPrintLabel={onPrintLabel}
+                printingId={printingId}
               />
             ))}
           </div>
@@ -529,6 +575,16 @@ export default function InventoryTable({
                         </td>
                         <td className="px-4 py-3.5">
                           <div className="flex justify-end gap-1">
+                            {canManageStock && (
+                              <button
+                                onClick={() => onPrintLabel(product)}
+                                disabled={printingId === product.id || product.quantity === 0}
+                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                                title="Stampa etichetta"
+                              >
+                                <QrCode size={15} />
+                              </button>
+                            )}
                             {isAdmin && (
                               <button
                                 onClick={() => onEdit(product)}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { collection, doc, onSnapshot, orderBy, query, runTransaction, updateDoc, writeBatch } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
@@ -12,12 +12,22 @@ import StockMovementForm from './components/StockMovementForm';
 import StockMovementsLog from './components/StockMovementsLog';
 import SaleForm from './components/SaleForm';
 import SalesLog from './components/SalesLog';
-import ReportsExport from './components/ReportsExport';
 import UsersSettings from './components/UsersSettings';
 import { AppUser, MovementType, PaymentMethod, Product, Sale, StockMovement, UserRole, ViewType } from './types';
 
 const EMAIL_API_URL = import.meta.env.VITE_EMAIL_API_URL || '/api/send-sale-mail';
 const RECEIPT_API_URL = import.meta.env.VITE_RECEIPT_API_URL || '/api/emit-receipt';
+
+// Caricata solo quando si apre la sezione Report: contiene le librerie pesanti (PDF, QR, ZIP).
+const ReportsExport = lazy(() => import('./components/ReportsExport'));
+
+function ReportsLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center py-16 text-sm font-semibold text-slate-400 dark:text-slate-500">
+      Caricamento report...
+    </div>
+  );
+}
 
 async function ensureUserProfile(fbUser: FirebaseUser): Promise<AppUser> {
   const userRef = doc(db, 'users', fbUser.uid);
@@ -520,7 +530,11 @@ export default function App() {
           </div>
         );
       case ViewType.REPORTS:
-        return <ReportsExport products={products} sales={sales} />;
+        return (
+          <Suspense fallback={<ReportsLoadingFallback />}>
+            <ReportsExport products={products} sales={sales} />
+          </Suspense>
+        );
       case ViewType.USERS:
         return isAdmin ? (
           <UsersSettings users={users} currentUserId={user?.uid || ''} onUpdateRole={updateUserRole} />
