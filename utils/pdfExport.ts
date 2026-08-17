@@ -147,6 +147,21 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
   doc.save(`report-inventario-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
+interface SalesGroupRow {
+  productId: string;
+  productName: string;
+  variantKey: string | null;
+  quantity: number;
+  totalPrice: number;
+}
+
+function splitVariantKey(variantKey: string | null): [string, string] {
+  if (!variantKey) return ['-', '-'];
+  const idx = variantKey.indexOf('-');
+  if (idx === -1) return [variantKey, '-'];
+  return [variantKey.slice(0, idx) || '-', variantKey.slice(idx + 1) || '-'];
+}
+
 export async function exportSalesToPDF(sales: Sale[], products: Product[], options: SalesExportOptions): Promise<void> {
   const filtered = sales.filter((s) => {
     const date = s.createdAt.slice(0, 10);
@@ -156,29 +171,48 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
     return true;
   });
 
+  const groups = new Map<string, SalesGroupRow>();
+  filtered.forEach((s) => {
+    const key = `${s.productId}::${s.variantKey || ''}`;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.quantity += s.quantity;
+      existing.totalPrice += s.totalPrice;
+    } else {
+      groups.set(key, {
+        productId: s.productId,
+        productName: s.productName,
+        variantKey: s.variantKey,
+        quantity: s.quantity,
+        totalPrice: s.totalPrice,
+      });
+    }
+  });
+  const rows = Array.from(groups.values()).sort((a, b) => b.quantity - a.quantity);
+
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const rangeLabel = options.from || options.to ? `${options.from || '...'} → ${options.to || '...'}` : 'tutte le date';
-  drawHeader(doc, 'Report Vendite', `Magazzino Magliette · ${filtered.length} vendite · ${rangeLabel}`);
+  const paymentLabel = options.paymentMethod === 'all' ? '' : ` · ${options.paymentMethod === 'contanti' ? 'Contanti' : 'Carta'}`;
+  drawHeader(
+    doc,
+    'Report Vendite',
+    `Magazzino Magliette · ${rows.length} prodotti/varianti · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}`
+  );
 
+  const productSkuMap = new Map(products.map((p) => [p.id, p.sku]));
   const productImageUrl = new Map(products.map((p) => [p.id, p.images[0] || null]));
   const images = await Promise.all(
-    filtered.map((s) => {
-      const url = productImageUrl.get(s.productId);
+    rows.map((r) => {
+      const url = productImageUrl.get(r.productId);
       return url ? loadImageAsDataUrl(url) : Promise.resolve(null);
     })
   );
 
-  const head = [['', 'Data', 'Prodotto', 'Variante', 'Q.tà', 'Prezzo unit.', 'Pagamento', 'Totale']];
-  const body = filtered.map((s) => [
-    '',
-    new Date(s.createdAt).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-    s.productName,
-    s.variantKey ? s.variantKey.replace('-', '/') : '-',
-    String(s.quantity),
-    `€${s.unitPrice.toFixed(2)}`,
-    s.paymentMethod === 'contanti' ? 'Contanti' : 'Carta',
-    `€${s.totalPrice.toFixed(2)}`,
-  ]);
+  const head = [['', 'Prodotto', 'SKU', 'Colore', 'Taglia', 'Q.tà venduta', 'Incasso']];
+  const body = rows.map((r) => {
+    const [colore, taglia] = splitVariantKey(r.variantKey);
+    return ['', r.productName, productSkuMap.get(r.productId) || '-', colore, taglia, String(r.quantity), `€${r.totalPrice.toFixed(2)}`];
+  });
 
   autoTable(doc, {
     startY: 34,
