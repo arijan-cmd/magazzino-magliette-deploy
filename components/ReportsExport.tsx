@@ -42,6 +42,18 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
   const [paymentMethod, setPaymentMethod] = useState<'all' | PaymentMethod>('all');
   const [salesBusy, setSalesBusy] = useState(false);
 
+  const [salesCategories, setSalesCategories] = useState<string[]>([]);
+  const salesCategoriesInitialized = useRef(false);
+  useEffect(() => {
+    if (!salesCategoriesInitialized.current && availableCategories.length > 0) {
+      setSalesCategories(availableCategories);
+      salesCategoriesInitialized.current = true;
+    }
+  }, [availableCategories]);
+  const toggleSalesCategory = (category: string) => {
+    setSalesCategories((prev) => (prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]));
+  };
+
   const [labelProductId, setLabelProductId] = useState('');
   const [labelBusy, setLabelBusy] = useState(false);
   const [labelError, setLabelError] = useState<string | null>(null);
@@ -58,7 +70,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
   const handleSalesExport = async () => {
     setSalesBusy(true);
     try {
-      await exportSalesToPDF(sales, products, { from: from || null, to: to || null, paymentMethod });
+      await exportSalesToPDF(sales, products, { from: from || null, to: to || null, paymentMethod, categories: salesCategories });
     } finally {
       setSalesBusy(false);
     }
@@ -182,9 +194,50 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
               <option value="carta">Carta</option>
             </select>
           </div>
+          {availableCategories.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={labelClass + ' mb-0'}>Categorie</label>
+                <div className="flex gap-2 text-[11px] font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setSalesCategories(availableCategories)}
+                    className="text-brand-600 dark:text-brand-400 hover:underline"
+                  >
+                    Tutte
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSalesCategories([])}
+                    className="text-slate-400 dark:text-slate-500 hover:underline"
+                  >
+                    Nessuna
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {availableCategories.map((category) => {
+                  const checked = salesCategories.includes(category);
+                  return (
+                    <label
+                      key={category}
+                      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer border transition ${
+                        checked
+                          ? 'bg-brand-50 dark:bg-brand-500/10 border-brand-300 dark:border-brand-800 text-brand-700 dark:text-brand-300'
+                          : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      <input type="checkbox" checked={checked} onChange={() => toggleSalesCategory(category)} className={checkboxClass} />
+                      {category}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <button
             onClick={handleSalesExport}
-            disabled={salesBusy}
+            disabled={salesBusy || salesCategories.length === 0}
             className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50"
           >
             <FileArrowDown size={16} /> {salesBusy ? 'Generazione...' : 'Esporta vendite PDF'}

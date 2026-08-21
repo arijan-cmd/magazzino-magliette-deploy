@@ -14,6 +14,7 @@ export interface SalesExportOptions {
   from: string | null; // ISO date (yyyy-mm-dd)
   to: string | null;
   paymentMethod: 'all' | 'contanti' | 'carta';
+  categories: string[]; // categorie da includere
 }
 
 interface LoadedImage {
@@ -185,11 +186,15 @@ function sizeSortIndex(taglia: string): number {
 }
 
 export async function exportSalesToPDF(sales: Sale[], products: Product[], options: SalesExportOptions): Promise<void> {
+  const productCategoryMap = new Map(products.map((p) => [p.id, p.category]));
+
   const filtered = sales.filter((s) => {
     const date = s.createdAt.slice(0, 10);
     if (options.from && date < options.from) return false;
     if (options.to && date > options.to) return false;
     if (options.paymentMethod !== 'all' && s.paymentMethod !== options.paymentMethod) return false;
+    const category = productCategoryMap.get(s.productId);
+    if (!options.categories.includes(category || '')) return false;
     return true;
   });
 
@@ -234,10 +239,15 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const rangeLabel = options.from || options.to ? `${options.from || '...'} → ${options.to || '...'}` : 'tutte le date';
   const paymentLabel = options.paymentMethod === 'all' ? '' : ` · ${options.paymentMethod === 'contanti' ? 'Contanti' : 'Carta'}`;
+  const allCategoriesInProducts = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
+  const categoryLabel =
+    options.categories.length > 0 && options.categories.length < allCategoriesInProducts.length
+      ? ` · Categorie: ${options.categories.join(', ')}`
+      : '';
   drawHeader(
     doc,
     'Report Vendite',
-    `Magazzino Magliette · ${groups.length} SKU · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}`
+    `Magazzino Magliette · ${groups.length} SKU · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}${categoryLabel}`
   );
 
   const images = await Promise.all(
