@@ -196,7 +196,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
-        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Panoramica del tuo magazzino</p>
+        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Panoramica dei tuoi prodotti</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -217,7 +217,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
             <CurrencyEur size={19} />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Valore magazzino</p>
+            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Valore prodotti</p>
             <p className="text-xl font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(stockValue)}</p>
             {isAdmin && (
               <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 truncate">

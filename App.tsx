@@ -285,7 +285,7 @@ export default function App() {
             variants[input.variantKey] = next;
           }
           const newQuantity = p.quantity + delta;
-          if (newQuantity < 0) throw new Error('Quantità non disponibile in magazzino.');
+          if (newQuantity < 0) throw new Error('Quantità non disponibile per questo prodotto.');
           tx.update(productRef, { quantity: newQuantity, variants, updatedAt: nowIso });
           tx.set(movementRef, {
             productId: input.productId,

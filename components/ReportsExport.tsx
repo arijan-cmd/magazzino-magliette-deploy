@@ -93,7 +93,7 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Report</h2>
-        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Esporta i dati del magazzino in PDF</p>
+        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Esporta i dati dei prodotti in PDF</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-w-5xl">

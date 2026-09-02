@@ -78,7 +78,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
           <ArrowsLeftRight size={19} />
         </div>
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Carico / Scarico magazzino</h2>
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Carico / Scarico prodotti</h2>
           <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Registra un movimento manuale</p>
         </div>
       </div>

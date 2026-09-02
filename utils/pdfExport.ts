@@ -152,7 +152,7 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
   const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY || 40;
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(`Valore totale magazzino: €${totalValue.toFixed(2)}`, 14, finalY + 10);
+  doc.text(`Valore totale prodotti: €${totalValue.toFixed(2)}`, 14, finalY + 10);
 
   doc.save(`report-inventario-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

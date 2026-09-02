@@ -433,7 +433,7 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
         ) : (
           <div>
             <label className={labelClass}>
-              Quantità in magazzino{' '}
+              Quantità disponibile{' '}
               {sizes.length === 0 && colors.length === 0 ? '' : '(aggiungi sia taglie che colori per gestire le varianti)'}
             </label>
             <input
