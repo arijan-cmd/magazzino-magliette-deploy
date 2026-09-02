@@ -141,7 +141,7 @@ function LoginForm() {
           </div>
           <h1 className="text-xl font-extrabold text-slate-900 dark:text-white text-center tracking-tight">{APP_NAME}</h1>
           <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 text-center uppercase tracking-widest mt-1">
-            Gestione magazzino
+            Gestione prodotti
           </p>
         </div>
 
@@ -314,7 +314,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           </div>
           <div className="min-w-0">
             <h1 className="font-extrabold text-sm tracking-tight truncate">{APP_NAME}</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Gestione magazzino</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Gestione prodotti</p>
           </div>
         </div>
 

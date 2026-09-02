@@ -387,7 +387,7 @@ export default function InventoryTable({
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Magazzino</h2>
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Prodotti</h2>
           <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">{products.length} prodotti in catalogo</p>
         </div>
         {isAdmin && (

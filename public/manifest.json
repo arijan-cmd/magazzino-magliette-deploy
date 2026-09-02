@@ -1,7 +1,7 @@
 {
   "name": "T-Shirt Shop",
   "short_name": "T-Shirt Shop",
-  "description": "Gestione magazzino di magliette",
+  "description": "Gestione prodotti di magliette",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
