@@ -11,8 +11,8 @@ import {
   ArrowRight,
   X,
 } from '@phosphor-icons/react';
-import { sortSizes, variantKey } from '../constants';
-import { ChipInput } from './ProductForm';
+import { DEFAULT_SIZES, sortSizes, variantKey } from '../constants';
+import VariantSelect from './VariantSelect';
 import { BlankGarment, Product } from '../types';
 
 interface BlankStockManagerProps {
@@ -21,7 +21,14 @@ interface BlankStockManagerProps {
   onSave: (data: Omit<BlankGarment, 'id' | 'createdAt' | 'updatedAt'>, id?: string) => void;
   onDelete: (id: string) => void;
   onAdjustVariant: (garmentId: string, variantKey: string, quantity: number) => void;
-  onTransfer: (input: { garmentId: string; variantKey: string; productId: string; quantity: number }) => void;
+  onTransfer: (input: {
+    garmentId: string;
+    variantKey: string;
+    colore: string;
+    taglia: string;
+    productId: string;
+    quantity: number;
+  }) => void;
 }
 
 const inputClass =
@@ -31,11 +38,15 @@ const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 m
 function GarmentForm({
   garment,
   existingModelli,
+  availableSizes,
+  availableColors,
   onSave,
   onCancel,
 }: {
   garment?: BlankGarment | null;
   existingModelli: string[];
+  availableSizes: string[];
+  availableColors: string[];
   onSave: (data: Omit<BlankGarment, 'id' | 'createdAt' | 'updatedAt'>, id?: string) => void;
   onCancel: () => void;
 }) {
@@ -104,8 +115,8 @@ function GarmentForm({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <ChipInput label="Taglie" values={sortedSizes} onChange={setSizes} />
-        <ChipInput label="Colori" values={colors} onChange={setColors} />
+        <VariantSelect label="Taglie" values={sortedSizes} onChange={setSizes} options={availableSizes} />
+        <VariantSelect label="Colori" values={colors} onChange={setColors} options={availableColors} />
       </div>
 
       {hasVariants && (
@@ -198,13 +209,12 @@ function TransferPanel({
   onTransfer: BlankStockManagerProps['onTransfer'];
   onClose: () => void;
 }) {
-  const matchingProducts = useMemo(
-    () => products.filter((p) => p.colors.includes(colore) && p.sizes.includes(taglia)),
-    [products, colore, taglia]
-  );
-  const [productId, setProductId] = useState(matchingProducts[0]?.id || '');
+  const [productId, setProductId] = useState(products[0]?.id || '');
   const [quantity, setQuantity] = useState(available);
   const [error, setError] = useState<string | null>(null);
+
+  const selectedProduct = products.find((p) => p.id === productId) || null;
+  const willAddVariant = !!selectedProduct && (!selectedProduct.colors.includes(colore) || !selectedProduct.sizes.includes(taglia));
 
   const handleConfirm = () => {
     setError(null);
@@ -216,7 +226,7 @@ function TransferPanel({
       setError('Quantità non valida.');
       return;
     }
-    onTransfer({ garmentId, variantKey: variantKeyValue, productId, quantity });
+    onTransfer({ garmentId, variantKey: variantKeyValue, colore, taglia, productId, quantity });
     onClose();
   };
 
@@ -225,15 +235,13 @@ function TransferPanel({
       <p className="text-xs font-bold text-brand-700 dark:text-brand-300">
         Carica {colore} / {taglia} · {garmentModello} in un prodotto
       </p>
-      {matchingProducts.length === 0 ? (
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-          Nessun prodotto esistente ha la variante {colore} / {taglia}.
-        </p>
+      {products.length === 0 ? (
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Non ci sono ancora prodotti in catalogo.</p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
             <select value={productId} onChange={(e) => setProductId(e.target.value)} className={inputClass + ' py-2'}>
-              {matchingProducts.map((p) => (
+              {products.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} ({p.sku})
                 </option>
@@ -248,6 +256,11 @@ function TransferPanel({
               className={inputClass + ' py-2 sm:w-24'}
             />
           </div>
+          {willAddVariant && (
+            <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+              Questo prodotto non ha ancora la variante {colore} / {taglia}: verrà aggiunta automaticamente.
+            </p>
+          )}
           {error && <p className="text-xs font-semibold text-red-600 dark:text-red-400">{error}</p>}
           <div className="flex gap-2">
             <button
@@ -430,6 +443,17 @@ export default function BlankStockManager({ garments, products, onSave, onDelete
   const [editingGarment, setEditingGarment] = useState<BlankGarment | null>(null);
 
   const existingModelli = useMemo(() => Array.from(new Set(garments.map((g) => g.modello))).sort(), [garments]);
+  const availableSizes = useMemo(
+    () => Array.from(new Set([...DEFAULT_SIZES, ...garments.flatMap((g) => g.sizes), ...products.flatMap((p) => p.sizes)])).filter(Boolean),
+    [garments, products]
+  );
+  const availableColors = useMemo(
+    () =>
+      Array.from(new Set([...garments.flatMap((g) => g.colors), ...products.flatMap((p) => p.colors)]))
+        .filter(Boolean)
+        .sort(),
+    [garments, products]
+  );
 
   const handleSave: BlankStockManagerProps['onSave'] = (data, id) => {
     onSave(data, id);
@@ -464,6 +488,8 @@ export default function BlankStockManager({ garments, products, onSave, onDelete
           <GarmentForm
             garment={editingGarment}
             existingModelli={existingModelli}
+            availableSizes={availableSizes}
+            availableColors={availableColors}
             onSave={handleSave}
             onCancel={() => {
               setFormOpen(false);

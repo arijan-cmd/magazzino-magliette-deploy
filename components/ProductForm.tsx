@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, Plus, Package, Image } from '@phosphor-icons/react';
+import { X, Package, Image } from '@phosphor-icons/react';
 import { DEFAULT_CATEGORIES, DEFAULT_SIZES, IVA_RATES, sortSizes, variantKey } from '../constants';
 import { MAX_IMAGE_SIZE_BYTES } from '../services/storage';
-import { Product } from '../types';
+import { BlankGarment, Product } from '../types';
+import VariantSelect from './VariantSelect';
 
 export type ProductFormValues = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'images'>;
 
@@ -14,6 +15,7 @@ export interface ProductImagesInput {
 interface ProductFormProps {
   product?: Product | null;
   products: Product[];
+  blankGarments: BlankGarment[];
   onSave: (data: ProductFormValues, images: ProductImagesInput, id?: string) => void;
   onCancel: () => void;
 }
@@ -22,95 +24,28 @@ const inputClass =
   'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
 const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
 
-export function ChipInput({
-  label,
-  values,
-  onChange,
-  suggestions,
-}: {
-  label: string;
-  values: string[];
-  onChange: (values: string[]) => void;
-  suggestions?: string[];
-}) {
-  const [draft, setDraft] = useState('');
 
-  const add = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed || values.includes(trimmed)) return;
-    onChange([...values, trimmed]);
-    setDraft('');
-  };
-
-  return (
-    <div>
-      <label className={labelClass}>{label}</label>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {values.map((v) => (
-          <span
-            key={v}
-            className="flex items-center gap-1.5 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-800/60 text-brand-700 dark:text-brand-300 rounded-full pl-3 pr-2 py-1 text-xs font-bold"
-          >
-            {v}
-            <button
-              type="button"
-              onClick={() => onChange(values.filter((x) => x !== v))}
-              className="hover:text-brand-900 dark:hover:text-brand-100"
-            >
-              <X size={12} />
-            </button>
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              add(draft);
-            }
-          }}
-          placeholder={`Aggiungi ${label.toLowerCase()}...`}
-          className={inputClass + ' py-2'}
-        />
-        <button
-          type="button"
-          onClick={() => add(draft)}
-          className="px-3.5 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition"
-        >
-          <Plus size={14} /> Aggiungi
-        </button>
-      </div>
-      {suggestions && suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {suggestions
-            .filter((s) => !values.includes(s))
-            .map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => add(s)}
-                className="text-[11px] font-bold text-slate-400 dark:text-slate-500 border border-dashed border-slate-300 dark:border-slate-700 rounded-full px-2.5 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300 transition"
-              >
-                + {s}
-              </button>
-            ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function ProductForm({ product, products, onSave, onCancel }: ProductFormProps) {
+export default function ProductForm({ product, products, blankGarments, onSave, onCancel }: ProductFormProps) {
   const [name, setName] = useState(product?.name || '');
   const [sku, setSku] = useState(product?.sku || '');
   const [category, setCategory] = useState(product?.category || DEFAULT_CATEGORIES[0]);
   const availableCategories = useMemo(
     () => Array.from(new Set([...DEFAULT_CATEGORIES, ...products.map((p) => p.category)])).filter(Boolean).sort(),
     [products]
+  );
+  const availableSizes = useMemo(
+    () =>
+      Array.from(
+        new Set([...DEFAULT_SIZES, ...products.flatMap((p) => p.sizes), ...blankGarments.flatMap((g) => g.sizes)])
+      ).filter(Boolean),
+    [products, blankGarments]
+  );
+  const availableColors = useMemo(
+    () =>
+      Array.from(new Set([...products.flatMap((p) => p.colors), ...blankGarments.flatMap((g) => g.colors)]))
+        .filter(Boolean)
+        .sort(),
+    [products, blankGarments]
   );
   const [description, setDescription] = useState(product?.description || '');
   const [salePrice, setSalePrice] = useState(product?.salePrice ?? 0);
@@ -381,10 +316,10 @@ export default function ProductForm({ product, products, onSave, onCancel }: Pro
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-slate-100 dark:border-slate-800">
           <div className="pt-4">
-            <ChipInput label="Taglie" values={sortedSizes} onChange={setSizes} suggestions={DEFAULT_SIZES} />
+            <VariantSelect label="Taglie" values={sortedSizes} onChange={setSizes} options={availableSizes} />
           </div>
           <div className="pt-4">
-            <ChipInput label="Colori" values={colors} onChange={setColors} />
+            <VariantSelect label="Colori" values={colors} onChange={setColors} options={availableColors} />
           </div>
         </div>
 

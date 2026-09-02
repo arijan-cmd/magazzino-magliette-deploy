@@ -13,6 +13,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
+import { sortSizes } from './constants';
 import { OperationType, handleFirestoreError } from './services/firestore';
 import { uploadProductImages, deleteProductImage } from './services/storage';
 import Layout from './components/Layout';
@@ -527,7 +528,7 @@ export default function App() {
   );
 
   const transferBlankGarmentToProduct = useCallback(
-    (input: { garmentId: string; variantKey: string; productId: string; quantity: number }) =>
+    (input: { garmentId: string; variantKey: string; colore: string; taglia: string; productId: string; quantity: number }) =>
       runAction(async () => {
         if (!isAdmin) throw new Error('Solo un admin può trasferire dal magazzino.');
         if (!user) throw new Error('Devi accedere per trasferire dal magazzino.');
@@ -546,15 +547,20 @@ export default function App() {
 
           const available = g.variants[input.variantKey] || 0;
           if (available < input.quantity) throw new Error('Quantità non disponibile nel magazzino per questa variante.');
-          if (!(input.variantKey in p.variants)) {
-            throw new Error('Il prodotto scelto non ha questa combinazione di colore/taglia.');
-          }
 
           const garmentVariants = { ...g.variants, [input.variantKey]: available - input.quantity };
           tx.update(garmentRef, { variants: garmentVariants, quantity: g.quantity - input.quantity, updatedAt: nowIso });
 
+          const productColors = p.colors.includes(input.colore) ? p.colors : [...p.colors, input.colore];
+          const productSizes = p.sizes.includes(input.taglia) ? p.sizes : sortSizes([...p.sizes, input.taglia]);
           const productVariants = { ...p.variants, [input.variantKey]: (p.variants[input.variantKey] || 0) + input.quantity };
-          tx.update(productRef, { variants: productVariants, quantity: p.quantity + input.quantity, updatedAt: nowIso });
+          tx.update(productRef, {
+            colors: productColors,
+            sizes: productSizes,
+            variants: productVariants,
+            quantity: p.quantity + input.quantity,
+            updatedAt: nowIso,
+          });
 
           tx.set(movementRef, {
             productId: input.productId,
@@ -617,12 +623,20 @@ export default function App() {
           />
         );
       case ViewType.ADD_PRODUCT:
-        return <ProductForm products={products} onSave={saveProduct} onCancel={() => setActiveView(ViewType.INVENTORY)} />;
+        return (
+          <ProductForm
+            products={products}
+            blankGarments={blankGarments}
+            onSave={saveProduct}
+            onCancel={() => setActiveView(ViewType.INVENTORY)}
+          />
+        );
       case ViewType.EDIT_PRODUCT:
         return (
           <ProductForm
             product={editingProduct}
             products={products}
+            blankGarments={blankGarments}
             onSave={saveProduct}
             onCancel={() => {
               setEditingProduct(null);
