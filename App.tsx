@@ -1,6 +1,17 @@
 import React, { useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { collection, doc, onSnapshot, orderBy, query, runTransaction, updateDoc, writeBatch } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  runTransaction,
+  updateDoc,
+  writeBatch,
+} from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
 import { OperationType, handleFirestoreError } from './services/firestore';
 import { uploadProductImages, deleteProductImage } from './services/storage';
@@ -13,7 +24,8 @@ import StockMovementsLog from './components/StockMovementsLog';
 import SaleForm from './components/SaleForm';
 import SalesLog from './components/SalesLog';
 import UsersSettings from './components/UsersSettings';
-import { AppUser, MovementType, PaymentMethod, Product, Sale, StockMovement, UserRole, ViewType } from './types';
+import BlankStockManager from './components/BlankStockManager';
+import { AppUser, BlankGarment, MovementType, PaymentMethod, Product, Sale, StockMovement, UserRole, ViewType } from './types';
 
 const EMAIL_API_URL = import.meta.env.VITE_EMAIL_API_URL || '/api/send-sale-mail';
 const RECEIPT_API_URL = import.meta.env.VITE_RECEIPT_API_URL || '/api/emit-receipt';
@@ -66,6 +78,7 @@ export default function App() {
   const [sales, setSales] = useState<Sale[]>([]);
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [users, setUsers] = useState<AppUser[]>([]);
+  const [blankGarments, setBlankGarments] = useState<BlankGarment[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const isAdmin = user?.role === 'admin';
@@ -101,6 +114,7 @@ export default function App() {
       setSales([]);
       setMovements([]);
       setUsers([]);
+      setBlankGarments([]);
       return;
     }
 
@@ -157,11 +171,29 @@ export default function App() {
       setUsers([]);
     }
 
+    let unsubBlankGarments = () => {};
+    if (isAdmin) {
+      unsubBlankGarments = onSnapshot(
+        query(collection(db, 'blankGarments'), orderBy('updatedAt', 'desc')),
+        (snap) => setBlankGarments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as BlankGarment)),
+        (err) => {
+          try {
+            handleFirestoreError(err, OperationType.LIST, 'blankGarments');
+          } catch {
+            /* logged */
+          }
+        }
+      );
+    } else {
+      setBlankGarments([]);
+    }
+
     return () => {
       unsubProducts();
       unsubSales();
       unsubMovements();
       unsubUsers();
+      unsubBlankGarments();
     };
   }, [user, isAdmin]);
 
@@ -452,6 +484,95 @@ export default function App() {
     [runAction, isAdmin, movements]
   );
 
+  const saveBlankGarment = useCallback(
+    (data: Omit<BlankGarment, 'id' | 'createdAt' | 'updatedAt'>, id?: string) =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può gestire il magazzino.');
+        const nowIso = new Date().toISOString();
+        if (id) {
+          await updateDoc(doc(db, 'blankGarments', id), { ...data, updatedAt: nowIso });
+        } else {
+          await addDoc(collection(db, 'blankGarments'), { ...data, createdAt: nowIso, updatedAt: nowIso });
+        }
+      }),
+    [runAction, isAdmin]
+  );
+
+  const deleteBlankGarment = useCallback(
+    (id: string) =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può gestire il magazzino.');
+        await deleteDoc(doc(db, 'blankGarments', id));
+      }),
+    [runAction, isAdmin]
+  );
+
+  const adjustBlankGarmentVariant = useCallback(
+    (garmentId: string, variantKey: string, quantity: number) =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può gestire il magazzino.');
+        const garmentRef = doc(db, 'blankGarments', garmentId);
+        const nowIso = new Date().toISOString();
+        await runTransaction(db, async (tx) => {
+          const snap = await tx.get(garmentRef);
+          if (!snap.exists()) throw new Error('Modello non trovato.');
+          const g = snap.data() as BlankGarment;
+          const variants = { ...g.variants };
+          const delta = quantity - (variants[variantKey] || 0);
+          variants[variantKey] = quantity;
+          tx.update(garmentRef, { variants, quantity: g.quantity + delta, updatedAt: nowIso });
+        });
+      }),
+    [runAction, isAdmin]
+  );
+
+  const transferBlankGarmentToProduct = useCallback(
+    (input: { garmentId: string; variantKey: string; productId: string; quantity: number }) =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può trasferire dal magazzino.');
+        if (!user) throw new Error('Devi accedere per trasferire dal magazzino.');
+        if (input.quantity <= 0) throw new Error('La quantità deve essere maggiore di zero.');
+        const garmentRef = doc(db, 'blankGarments', input.garmentId);
+        const productRef = doc(db, 'products', input.productId);
+        const movementRef = doc(collection(db, 'stockMovements'));
+        const nowIso = new Date().toISOString();
+        await runTransaction(db, async (tx) => {
+          const garmentSnap = await tx.get(garmentRef);
+          const productSnap = await tx.get(productRef);
+          if (!garmentSnap.exists()) throw new Error('Modello non trovato.');
+          if (!productSnap.exists()) throw new Error('Prodotto non trovato.');
+          const g = garmentSnap.data() as BlankGarment;
+          const p = productSnap.data() as Product;
+
+          const available = g.variants[input.variantKey] || 0;
+          if (available < input.quantity) throw new Error('Quantità non disponibile nel magazzino per questa variante.');
+          if (!(input.variantKey in p.variants)) {
+            throw new Error('Il prodotto scelto non ha questa combinazione di colore/taglia.');
+          }
+
+          const garmentVariants = { ...g.variants, [input.variantKey]: available - input.quantity };
+          tx.update(garmentRef, { variants: garmentVariants, quantity: g.quantity - input.quantity, updatedAt: nowIso });
+
+          const productVariants = { ...p.variants, [input.variantKey]: (p.variants[input.variantKey] || 0) + input.quantity };
+          tx.update(productRef, { variants: productVariants, quantity: p.quantity + input.quantity, updatedAt: nowIso });
+
+          tx.set(movementRef, {
+            productId: input.productId,
+            productName: p.name,
+            variantKey: input.variantKey,
+            type: 'in',
+            quantity: input.quantity,
+            reason: `Da magazzino: ${g.modello}`,
+            relatedSaleId: null,
+            userId: user.uid,
+            userName: user.displayName,
+            createdAt: nowIso,
+          });
+        });
+      }),
+    [runAction, isAdmin, user]
+  );
+
   const lowStockProducts = products.filter((p) => p.quantity <= p.minStockLevel);
 
   const goToEdit = (product: Product) => {
@@ -509,6 +630,17 @@ export default function App() {
             }}
           />
         );
+      case ViewType.BLANK_STOCK:
+        return isAdmin ? (
+          <BlankStockManager
+            garments={blankGarments}
+            products={products}
+            onSave={saveBlankGarment}
+            onDelete={deleteBlankGarment}
+            onAdjustVariant={adjustBlankGarmentVariant}
+            onTransfer={transferBlankGarmentToProduct}
+          />
+        ) : null;
       case ViewType.MOVEMENTS:
         return canManageStock ? (
           <div className="space-y-8">

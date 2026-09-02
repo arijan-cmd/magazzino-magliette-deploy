@@ -109,6 +109,24 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // --- blankGarments: magliette non stampate disponibili, gestione riservata all'admin ---
+    function isValidBlankGarment(data) {
+      return data.modello is string && data.modello.size() <= 200 &&
+             data.sizes is list &&
+             data.colors is list &&
+             data.variants is map &&
+             data.quantity is int && data.quantity >= 0 &&
+             data.createdAt is string &&
+             data.updatedAt is string;
+    }
+
+    match /blankGarments/{garmentId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && isValidBlankGarment(incoming());
+      allow update: if isAdmin() && isValidBlankGarment(incoming());
+      allow delete: if isAdmin();
+    }
+
     // --- sales ---
     function isValidSale(data) {
       return data.productId is string &&

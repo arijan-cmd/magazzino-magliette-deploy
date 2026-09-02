@@ -29,6 +29,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const NAV_ITEMS: { view: ViewType; label: string; roles?: UserRole[] }[] = [
   { view: ViewType.DASHBOARD, label: 'Dashboard' },
   { view: ViewType.INVENTORY, label: 'Prodotti' },
+  { view: ViewType.BLANK_STOCK, label: 'Magazzino', roles: ['admin'] },
   { view: ViewType.MOVEMENTS, label: 'Movimenti', roles: ['admin', 'staff'] },
   { view: ViewType.POS, label: 'Vendite' },
   { view: ViewType.REPORTS, label: 'Report' },

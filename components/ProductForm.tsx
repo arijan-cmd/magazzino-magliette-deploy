@@ -22,7 +22,7 @@ const inputClass =
   'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
 const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
 
-function ChipInput({
+export function ChipInput({
   label,
   values,
   onChange,

@@ -27,6 +27,17 @@ export interface Product {
   updatedAt: string; // ISO
 }
 
+export interface BlankGarment {
+  id: string;
+  modello: string; // es. "Oversized", "Classica", "Retro" — modello/vestibilità del capo non stampato
+  sizes: string[];
+  colors: string[];
+  variants: Record<string, number>; // chiave "${color}-${size}"
+  quantity: number; // aggregato, somma delle varianti
+  createdAt: string; // ISO
+  updatedAt: string; // ISO
+}
+
 export type PaymentMethod = 'contanti' | 'carta';
 
 export interface Sale {
@@ -75,6 +86,7 @@ export enum ViewType {
   INVENTORY = 'inventory',
   ADD_PRODUCT = 'add_product',
   EDIT_PRODUCT = 'edit_product',
+  BLANK_STOCK = 'blank_stock',
   MOVEMENTS = 'movements',
   POS = 'pos',
   REPORTS = 'reports',

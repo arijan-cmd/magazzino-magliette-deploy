@@ -10,6 +10,7 @@ import {
 import {
   SquaresFour,
   Package,
+  Archive,
   ArrowsLeftRight,
   ShoppingCart,
   FileText,
@@ -264,6 +265,7 @@ const NAV_ICONS: Record<ViewType, Icon> = {
   [ViewType.INVENTORY]: Package,
   [ViewType.ADD_PRODUCT]: Package,
   [ViewType.EDIT_PRODUCT]: Package,
+  [ViewType.BLANK_STOCK]: Archive,
   [ViewType.MOVEMENTS]: ArrowsLeftRight,
   [ViewType.POS]: ShoppingCart,
   [ViewType.REPORTS]: FileText,
