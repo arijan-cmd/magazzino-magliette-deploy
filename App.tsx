@@ -328,6 +328,8 @@ export default function App() {
             quantity: input.quantity,
             reason: input.reason,
             relatedSaleId: null,
+            relatedGarmentId: null,
+            reversesMovementId: null,
             userId: user.uid,
             userName: user.displayName,
             createdAt: nowIso,
@@ -392,6 +394,8 @@ export default function App() {
             quantity: input.quantity,
             reason: 'Vendita',
             relatedSaleId: saleRef.id,
+            relatedGarmentId: null,
+            reversesMovementId: null,
             userId: user.uid,
             userName: user.displayName,
             createdAt: nowIso,
@@ -455,6 +459,8 @@ export default function App() {
             quantity: sale.quantity,
             reason: 'Annullamento vendita',
             relatedSaleId: sale.id,
+            relatedGarmentId: null,
+            reversesMovementId: null,
             userId: user.uid,
             userName: user.displayName,
             createdAt: nowIso,
@@ -570,6 +576,58 @@ export default function App() {
             quantity: input.quantity,
             reason: `Da magazzino: ${g.modello}`,
             relatedSaleId: null,
+            relatedGarmentId: input.garmentId,
+            reversesMovementId: null,
+            userId: user.uid,
+            userName: user.displayName,
+            createdAt: nowIso,
+          });
+        });
+      }),
+    [runAction, isAdmin, user]
+  );
+
+  const cancelBlankGarmentTransfer = useCallback(
+    (movement: StockMovement) =>
+      runAction(async () => {
+        if (!isAdmin) throw new Error('Solo un admin può annullare un carico dal magazzino.');
+        if (!user) throw new Error('Devi accedere per annullare un carico.');
+        if (!movement.relatedGarmentId || !movement.variantKey) throw new Error('Questo movimento non è annullabile.');
+        const productRef = doc(db, 'products', movement.productId);
+        const garmentRef = doc(db, 'blankGarments', movement.relatedGarmentId);
+        const newMovementRef = doc(collection(db, 'stockMovements'));
+        const nowIso = new Date().toISOString();
+        await runTransaction(db, async (tx) => {
+          const productSnap = await tx.get(productRef);
+          const garmentSnap = await tx.get(garmentRef);
+          if (!productSnap.exists()) throw new Error('Prodotto non trovato.');
+          const p = productSnap.data() as Product;
+          const currentQty = p.variants[movement.variantKey as string] || 0;
+          if (currentQty < movement.quantity) {
+            throw new Error('Impossibile annullare: parte di questa quantità è già stata usata (vendita o altro movimento).');
+          }
+          const productVariants = { ...p.variants, [movement.variantKey as string]: currentQty - movement.quantity };
+          tx.update(productRef, { variants: productVariants, quantity: p.quantity - movement.quantity, updatedAt: nowIso });
+
+          if (garmentSnap.exists()) {
+            const g = garmentSnap.data() as BlankGarment;
+            const garmentVariants = {
+              ...g.variants,
+              [movement.variantKey as string]: (g.variants[movement.variantKey as string] || 0) + movement.quantity,
+            };
+            tx.update(garmentRef, { variants: garmentVariants, quantity: g.quantity + movement.quantity, updatedAt: nowIso });
+          }
+
+          tx.set(newMovementRef, {
+            productId: movement.productId,
+            productName: movement.productName,
+            variantKey: movement.variantKey,
+            type: 'out',
+            quantity: movement.quantity,
+            reason: garmentSnap.exists() ? 'Annullamento carico da magazzino' : 'Annullamento carico da magazzino (modello eliminato)',
+            relatedSaleId: null,
+            relatedGarmentId: movement.relatedGarmentId,
+            reversesMovementId: movement.id,
             userId: user.uid,
             userName: user.displayName,
             createdAt: nowIso,
@@ -659,7 +717,7 @@ export default function App() {
         return canManageStock ? (
           <div className="space-y-8">
             <StockMovementForm products={products} onSubmit={createMovement} />
-            <StockMovementsLog movements={movements} />
+            <StockMovementsLog movements={movements} isAdmin={isAdmin} onCancelTransfer={cancelBlankGarmentTransfer} />
           </div>
         ) : null;
       case ViewType.POS:

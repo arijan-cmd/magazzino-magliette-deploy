@@ -76,6 +76,8 @@ export interface StockMovement {
   quantity: number; // sempre positivo, il segno lo dà `type`
   reason: string;
   relatedSaleId: string | null;
+  relatedGarmentId: string | null; // id del modello in magazzino da cui proviene un carico
+  reversesMovementId: string | null; // id del movimento annullato, se questo è un annullamento
   userId: string;
   userName: string;
   createdAt: string; // ISO

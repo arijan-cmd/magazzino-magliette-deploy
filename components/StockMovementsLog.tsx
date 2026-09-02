@@ -5,6 +5,8 @@ import { MovementType, StockMovement } from '../types';
 
 interface StockMovementsLogProps {
   movements: StockMovement[];
+  isAdmin: boolean;
+  onCancelTransfer: (movement: StockMovement) => void;
 }
 
 const TYPE_META: Record<MovementType, { label: string; icon: Icon; color: string; sign: string }> = {
@@ -14,12 +16,18 @@ const TYPE_META: Record<MovementType, { label: string; icon: Icon; color: string
   'sale-cancel': { label: 'Annullo vendita', icon: ArrowUUpLeft, color: 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10', sign: '+' },
 };
 
-export default function StockMovementsLog({ movements }: StockMovementsLogProps) {
+export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer }: StockMovementsLogProps) {
   const [typeFilter, setTypeFilter] = useState<'all' | MovementType>('all');
+  const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
 
   const filtered = useMemo(
     () => (typeFilter === 'all' ? movements : movements.filter((m) => m.type === typeFilter)),
     [movements, typeFilter]
+  );
+
+  const reversedMovementIds = useMemo(
+    () => new Set(movements.filter((m) => m.reversesMovementId).map((m) => m.reversesMovementId as string)),
+    [movements]
   );
 
   return (
@@ -60,12 +68,18 @@ export default function StockMovementsLog({ movements }: StockMovementsLogProps)
                 <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
                   Data
                 </th>
+                {isAdmin && (
+                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                    Azioni
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
               {filtered.map((m) => {
                 const meta = TYPE_META[m.type];
                 const Icon = meta.icon;
+                const cancellable = m.type === 'in' && !!m.relatedGarmentId && !reversedMovementIds.has(m.id);
                 return (
                   <tr
                     key={m.id}
@@ -89,12 +103,47 @@ export default function StockMovementsLog({ movements }: StockMovementsLogProps)
                     </td>
                     <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">{m.userName}</td>
                     <td className="px-4 py-3 text-slate-400 dark:text-slate-500 font-medium">{formatDate(m.createdAt)}</td>
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        {cancellable && (
+                          <div className="flex justify-end gap-1">
+                            {confirmCancelId === m.id ? (
+                              <>
+                                <button
+                                  onClick={() => {
+                                    onCancelTransfer(m);
+                                    setConfirmCancelId(null);
+                                  }}
+                                  className="text-xs font-bold text-red-600 dark:text-red-400 px-2 hover:underline whitespace-nowrap"
+                                >
+                                  Conferma
+                                </button>
+                                <button
+                                  onClick={() => setConfirmCancelId(null)}
+                                  className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                                >
+                                  Annulla
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => setConfirmCancelId(m.id)}
+                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
+                                title="Annulla carico da magazzino"
+                              >
+                                <ArrowUUpLeft size={15} />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-16 text-center">
+                  <td colSpan={isAdmin ? 7 : 6} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
                       <ClockCounterClockwise size={32} />
                       <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun movimento registrato.</p>
