@@ -109,7 +109,7 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
     options.categories.length > 0 && options.categories.length < allCategories.length
       ? ` · Categorie: ${options.categories.join(', ')}`
       : '';
-  drawHeader(doc, 'Report Inventario', `Magazzino Magliette · ${filtered.length} prodotti${categoryLabel}`);
+  drawHeader(doc, 'Report Inventario', `T-Shirt Shop · ${filtered.length} prodotti${categoryLabel}`);
 
   const images = await Promise.all(
     filtered.map((p) => (p.images[0] ? loadImageAsDataUrl(p.images[0]) : Promise.resolve(null)))
@@ -247,7 +247,7 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
   drawHeader(
     doc,
     'Report Vendite',
-    `Magazzino Magliette · ${groups.length} SKU · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}${categoryLabel}`
+    `T-Shirt Shop · ${groups.length} SKU · ${filtered.length} vendite · ${rangeLabel}${paymentLabel}${categoryLabel}`
   );
 
   const images = await Promise.all(

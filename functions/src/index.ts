@@ -22,7 +22,7 @@ export const sendSaleMail = onRequest(async (req, res) => {
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
   const smtpSecure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : true;
-  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `"Magazzino Magliette" <${smtpUser}>` : undefined);
+  const smtpFrom = process.env.SMTP_FROM || (smtpUser ? `"T-Shirt Shop" <${smtpUser}>` : undefined);
   const smtpTo = process.env.SMTP_TO;
 
   console.log('[SMTP] Richiesta invio mail ricevuta per vendita di:', product.name);
@@ -119,7 +119,7 @@ export const sendSaleMail = onRequest(async (req, res) => {
               <tr><td class="label">Venditore</td><td class="value">${sale.userName || 'N.D.'}</td></tr>
             </table>
           </div>
-          <div class="footer">Generato automaticamente da Magazzino Magliette</div>
+          <div class="footer">Generato automaticamente da T-Shirt Shop</div>
         </div>
       </body>
       </html>

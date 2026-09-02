@@ -1,4 +1,4 @@
-# Magazzino Magliette
+# T-Shirt Shop
 
 App web per la gestione di un magazzino di magliette: anagrafica prodotti (con taglie/colori/varianti, immagini e SKU univoco), carico e scarico magazzino con registro movimenti, vendite e incassi, avvisi scorte minime, report PDF esportabili ed email automatica ad ogni vendita tramite SMTP Aruba.
 
@@ -35,7 +35,7 @@ SMTP_PORT=465
 SMTP_USER=tuacasella@tuodominio.it
 SMTP_PASS=la-tua-password
 SMTP_SECURE=true
-SMTP_FROM="Magazzino Magliette" <tuacasella@tuodominio.it>
+SMTP_FROM="T-Shirt Shop" <tuacasella@tuodominio.it>
 SMTP_TO=destinatario-notifiche@tuodominio.it
 ```
 

@@ -37,7 +37,7 @@ app.post('/api/send-sale-mail', async (req, res) => {
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
-  const emailFrom = process.env.EMAIL_FROM || 'Magazzino Magliette <onboarding@resend.dev>';
+  const emailFrom = process.env.EMAIL_FROM || 'T-Shirt Shop <onboarding@resend.dev>';
   const emailTo = process.env.EMAIL_TO;
 
   console.log('[Email] Richiesta invio mail ricevuta per vendita di:', product.name);
@@ -120,7 +120,7 @@ app.post('/api/send-sale-mail', async (req, res) => {
               <tr><td class="label">Venditore</td><td class="value">${sale.userName || 'N.D.'}</td></tr>
             </table>
           </div>
-          <div class="footer">Generato automaticamente da Magazzino Magliette</div>
+          <div class="footer">Generato automaticamente da T-Shirt Shop</div>
         </div>
       </body>
       </html>

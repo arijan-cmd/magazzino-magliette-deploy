@@ -1,6 +1,6 @@
 import { UserRole, ViewType } from './types';
 
-export const APP_NAME = 'Magazzino Magliette';
+export const APP_NAME = 'T-Shirt Shop';
 
 export const DEFAULT_CATEGORIES = ['T-Shirt', 'Felpa', 'Polo', 'Canotta', 'Accessori', 'Salsa', 'Bachata'];
 
