@@ -120,7 +120,7 @@ export default function App() {
     }
 
     const unsubProducts = onSnapshot(
-      query(collection(db, 'products'), orderBy('updatedAt', 'desc')),
+      query(collection(db, 'products'), orderBy('createdAt', 'desc')),
       (snap) => setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Product)),
       (err) => {
         try {
@@ -175,7 +175,7 @@ export default function App() {
     let unsubBlankGarments = () => {};
     if (isAdmin) {
       unsubBlankGarments = onSnapshot(
-        query(collection(db, 'blankGarments'), orderBy('updatedAt', 'desc')),
+        query(collection(db, 'blankGarments'), orderBy('createdAt', 'desc')),
         (snap) => setBlankGarments(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as BlankGarment)),
         (err) => {
           try {
@@ -735,7 +735,7 @@ export default function App() {
       case ViewType.REPORTS:
         return (
           <Suspense fallback={<ReportsLoadingFallback />}>
-            <ReportsExport products={products} sales={sales} />
+            <ReportsExport products={products} sales={sales} blankGarments={blankGarments} isAdmin={isAdmin} />
           </Suspense>
         );
       case ViewType.USERS:

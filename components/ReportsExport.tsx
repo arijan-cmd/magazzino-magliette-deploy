@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FileArrowDown, ClipboardText, Receipt, QrCode } from '@phosphor-icons/react';
-import { exportInventoryToPDF, exportSalesToPDF } from '../utils/pdfExport';
+import { FileArrowDown, ClipboardText, Receipt, QrCode, Archive } from '@phosphor-icons/react';
+import { exportInventoryToPDF, exportSalesToPDF, exportBlankStockToPDF } from '../utils/pdfExport';
 import { exportQrLabels } from '../utils/labelExport';
-import { PaymentMethod, Product, Sale } from '../types';
+import { BlankGarment, PaymentMethod, Product, Sale } from '../types';
 
 interface ReportsExportProps {
   products: Product[];
   sales: Sale[];
+  blankGarments: BlankGarment[];
+  isAdmin: boolean;
 }
 
 const inputClass =
@@ -15,7 +17,8 @@ const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 m
 const checkboxLabelClass = 'flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer';
 const checkboxClass = 'w-4 h-4 rounded accent-brand-600';
 
-export default function ReportsExport({ products, sales }: ReportsExportProps) {
+export default function ReportsExport({ products, sales, blankGarments, isAdmin }: ReportsExportProps) {
+  const [blankOnlyInStock, setBlankOnlyInStock] = useState(true);
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [includePrices, setIncludePrices] = useState(true);
   const [includeVariants, setIncludeVariants] = useState(true);
@@ -280,6 +283,34 @@ export default function ReportsExport({ products, sales }: ReportsExportProps) {
             <FileArrowDown size={16} /> {labelBusy ? 'Generazione...' : 'Genera etichette (ZIP)'}
           </button>
         </div>
+        {isAdmin && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
+                <Archive size={17} />
+              </div>
+              <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Report magazzino</h3>
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed">
+              Elenco delle magliette non stampate per modello, colore e taglia, con i totali.
+            </p>
+            <label className={checkboxLabelClass}>
+              <input
+                type="checkbox"
+                checked={blankOnlyInStock}
+                onChange={(e) => setBlankOnlyInStock(e.target.checked)}
+                className={checkboxClass}
+              />
+              Solo colori con scorta disponibile
+            </label>
+            <button
+              onClick={() => exportBlankStockToPDF(blankGarments, { onlyInStock: blankOnlyInStock })}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white font-bold px-4 py-2.5 rounded-xl text-sm shadow-card transition-all duration-150"
+            >
+              <FileArrowDown size={16} /> Esporta magazzino PDF
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

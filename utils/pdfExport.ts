@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable, { CellHookData } from 'jspdf-autotable';
-import { Product, Sale } from '../types';
-import { DEFAULT_SIZES } from '../constants';
+import { BlankGarment, Product, Sale } from '../types';
+import { DEFAULT_SIZES, sortSizes, variantKey } from '../constants';
 
 export interface InventoryExportOptions {
   onlyInStock: boolean;
@@ -306,4 +306,78 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
   doc.text(`Incasso totale: €${totalRevenue.toFixed(2)}`, 14, finalY + 10);
 
   doc.save(`report-vendite-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+export interface BlankStockExportOptions {
+  onlyInStock: boolean;
+}
+
+export function exportBlankStockToPDF(garments: BlankGarment[], options: BlankStockExportOptions): void {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  const shown = garments
+    .map((g) => ({
+      garment: g,
+      colors: g.colors.filter(
+        (color) => !options.onlyInStock || g.sizes.some((size) => (g.variants[variantKey(color, size)] || 0) > 0)
+      ),
+    }))
+    .filter((entry) => entry.colors.length > 0);
+
+  const totalPieces = shown.reduce(
+    (sum, { garment, colors }) =>
+      sum + colors.reduce((s, color) => s + garment.sizes.reduce((t, size) => t + (garment.variants[variantKey(color, size)] || 0), 0), 0),
+    0
+  );
+
+  drawHeader(doc, 'Report Magazzino', `T-Shirt Shop · ${shown.length} modelli · ${totalPieces} pezzi non stampati`);
+
+  let cursorY = 36;
+  shown.forEach(({ garment, colors }) => {
+    const sizes = sortSizes(garment.sizes);
+    const estimatedHeight = 14 + (colors.length + 1) * 9;
+    if (cursorY + estimatedHeight > pageHeight - 16) {
+      doc.addPage();
+      cursorY = 20;
+    }
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text(garment.modello, 14, cursorY);
+
+    const body = colors.map((color) => {
+      const quantities = sizes.map((size) => garment.variants[variantKey(color, size)] || 0);
+      return [color, ...quantities.map(String), String(quantities.reduce((a, b) => a + b, 0))];
+    });
+
+    autoTable(doc, {
+      startY: cursorY + 3,
+      head: [['Colore', ...sizes, 'Totale']],
+      body,
+      styles: { fontSize: 9, cellPadding: 2.5, halign: 'center' },
+      columnStyles: { 0: { halign: 'left', fontStyle: 'bold' } },
+      headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+    });
+    cursorY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 12;
+  });
+
+  if (shown.length === 0) {
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Nessuna maglietta non stampata disponibile.', 14, 40);
+  } else {
+    if (cursorY > pageHeight - 20) {
+      doc.addPage();
+      cursorY = 20;
+    }
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Totale magliette non stampate: ${totalPieces} pezzi`, 14, cursorY);
+  }
+
+  drawFooter(doc);
+  doc.save(`report-magazzino-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
