@@ -339,6 +339,86 @@ export default function App() {
     [runAction, user]
   );
 
+  const emitReceipt = useCallback(
+    async (
+      saleId: string,
+      product: Product,
+      sale: {
+        variantKey: string | null;
+        quantity: number;
+        unitPrice: number;
+        commission: number;
+        paymentMethod: PaymentMethod;
+        totalPrice: number;
+        userName: string;
+        createdAt: string;
+      }
+    ) => {
+      const saleRef = doc(db, 'sales', saleId);
+      const setStatus = (patch: Record<string, unknown>) =>
+        updateDoc(saleRef, { ...patch, receiptUpdatedAt: new Date().toISOString() }).catch((err) =>
+          console.warn('[Scontrino] Impossibile salvare lo stato dello scontrino:', err)
+        );
+
+      await setStatus({ receiptStatus: 'pending', receiptError: null });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 90000);
+      try {
+        const res = await fetch(RECEIPT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product, sale }),
+          signal: controller.signal,
+        });
+        const json = (await res.json().catch(() => null)) as {
+          success?: boolean;
+          test?: boolean;
+          numeroDocumento?: string;
+          message?: string;
+        } | null;
+        if (res.ok && json?.success) {
+          await setStatus({
+            receiptStatus: 'emitted',
+            receiptNumber: json.numeroDocumento ?? null,
+            receiptTest: !!json.test,
+            receiptError: null,
+          });
+        } else {
+          throw new Error(json?.message || `Errore del servizio scontrini (${res.status})`);
+        }
+      } catch (err) {
+        const raw = (err as { name?: string; message?: string }) || {};
+        const message = raw.name === 'AbortError' ? 'Il servizio scontrini non ha risposto in tempo.' : raw.message || 'Errore sconosciuto';
+        await setStatus({ receiptStatus: 'failed', receiptError: message.slice(0, 300) });
+        setActionError(`Scontrino NON emesso per "${product.name}": ${message} Riprova dalla sezione Vendite.`);
+      } finally {
+        clearTimeout(timeout);
+      }
+    },
+    []
+  );
+
+  const retryReceipt = useCallback(
+    (sale: Sale) => {
+      const product = products.find((p) => p.id === sale.productId);
+      if (!product) {
+        setActionError('Impossibile emettere lo scontrino: il prodotto non esiste più.');
+        return;
+      }
+      void emitReceipt(sale.id, product, {
+        variantKey: sale.variantKey,
+        quantity: sale.quantity,
+        unitPrice: sale.unitPrice,
+        commission: sale.commission,
+        paymentMethod: sale.paymentMethod,
+        totalPrice: sale.totalPrice,
+        userName: sale.userName,
+        createdAt: sale.createdAt,
+      });
+    },
+    [products, emitReceipt]
+  );
+
   const sellProduct = useCallback(
     (input: {
       productId: string;
@@ -383,6 +463,7 @@ export default function App() {
             userId: user.uid,
             userName: user.displayName,
             createdAt: nowIso,
+            ...(input.paymentMethod === 'carta' ? { receiptStatus: 'pending' as const } : {}),
           };
           tx.set(saleRef, sale);
 
@@ -422,15 +503,11 @@ export default function App() {
           }).catch((err) => console.warn('[Email] Invio notifica vendita non riuscito:', err));
 
           if (input.paymentMethod === 'carta') {
-            fetch(RECEIPT_API_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ product: productSnapshot, sale: salePayload }),
-            }).catch((err) => console.warn('[Scontrino] Emissione scontrino non riuscita:', err));
+            void emitReceipt(saleRef.id, productSnapshot, salePayload);
           }
         }
       }),
-    [runAction, user]
+    [runAction, user, emitReceipt]
   );
 
   const cancelSale = useCallback(
@@ -729,7 +806,7 @@ export default function App() {
               initialProductId={pendingSale?.productId ?? null}
               initialVariantKey={pendingSale?.variantKey ?? null}
             />
-            <SalesLog sales={sales} onCancelSale={cancelSale} />
+            <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} onEmitReceipt={retryReceipt} />
           </div>
         );
       case ViewType.REPORTS:

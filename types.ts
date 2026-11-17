@@ -53,6 +53,12 @@ export interface Sale {
   userId: string;
   userName: string;
   createdAt: string; // ISO
+  // Stato dello scontrino elettronico (solo vendite a carta). Assente sulle vendite precedenti.
+  receiptStatus?: 'pending' | 'emitted' | 'failed';
+  receiptNumber?: string | null;
+  receiptTest?: boolean | null;
+  receiptError?: string | null;
+  receiptUpdatedAt?: string;
 }
 
 export type MovementType = 'in' | 'out' | 'sale' | 'sale-cancel';

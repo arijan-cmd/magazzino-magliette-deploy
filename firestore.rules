@@ -145,7 +145,10 @@ service cloud.firestore {
       allow read: if isMember();
       allow create: if isMember() && isValidSale(incoming()) &&
                     exists(/databases/$(database)/documents/products/$(incoming().productId));
-      allow update: if false;
+      // Solo lo stato dello scontrino puo' essere aggiornato dopo la creazione.
+      allow update: if isMember() &&
+        incoming().diff(existing()).affectedKeys().hasOnly(
+          ['receiptStatus', 'receiptNumber', 'receiptTest', 'receiptError', 'receiptUpdatedAt']);
       allow delete: if isMember();
     }
 
