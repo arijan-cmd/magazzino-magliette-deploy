@@ -154,14 +154,39 @@ app.post('/api/send-sale-mail', async (req, res) => {
   }
 });
 
+// Protezione anti-doppione: per ogni vendita (saleId) si emette UNO solo scontrino.
+// Se la stessa richiesta arriva di nuovo (doppio click, nuovo tentativo dopo un timeout del browser)
+// si restituisce l'esito già ottenuto invece di emetterne un altro.
+type ReceiptResult = { success: true; test: boolean; numeroDocumento?: string; scontrinoPdfUrl?: string };
+const emittedBySale = new Map<string, ReceiptResult>();
+const inFlightBySale = new Map<string, Promise<ReceiptResult>>();
+
 app.post('/api/emit-receipt', async (req, res) => {
-  const { product, sale } = req.body;
+  const { product, sale, saleId } = req.body;
 
   if (!product || !sale) {
     return res.status(400).json({
       success: false,
       message: 'Parametri "product" e "sale" richiesti.',
     });
+  }
+
+  if (typeof saleId === 'string' && saleId) {
+    const done = emittedBySale.get(saleId);
+    if (done) {
+      console.log(`[Scontrino] Vendita ${saleId} già emessa (${done.numeroDocumento}): restituisco l'esito senza riemettere.`);
+      return res.status(200).json({ ...done, duplicate: true });
+    }
+    const running = inFlightBySale.get(saleId);
+    if (running) {
+      console.log(`[Scontrino] Vendita ${saleId} già in emissione: attendo lo stesso esito.`);
+      try {
+        return res.status(200).json({ ...(await running), duplicate: true });
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        return res.status(500).json({ success: false, message: "Errore durante l'emissione dello scontrino: " + message });
+      }
+    }
   }
 
   const codiceLicenza = process.env.BILLY_CODICE_LICENZA;
@@ -183,7 +208,7 @@ app.post('/api/emit-receipt', async (req, res) => {
     });
   }
 
-  try {
+  const emit = async (): Promise<ReceiptResult> => {
     const quantity = Number(sale.quantity) || 0;
     const unitPrice = Number(sale.unitPrice) || 0;
     const totalGross = quantity * unitPrice;
@@ -242,18 +267,31 @@ app.post('/api/emit-receipt', async (req, res) => {
     }
 
     console.log(
-      `[Scontrino] Emesso correttamente: ${billyJson.scontrino?.numeroDocumento} ${testMode ? '(TEST)' : '(REALE)'}`
+      `[Scontrino] Emesso correttamente: ${billyJson.scontrino?.numeroDocumento} ${testMode ? '(TEST)' : '(REALE)'}` +
+        (saleId ? ` · vendita ${saleId}` : '')
     );
-    return res.status(200).json({
+    return {
       success: true,
       test: testMode,
       numeroDocumento: billyJson.scontrino?.numeroDocumento,
       scontrinoPdfUrl: billyJson.scontrino?.scontrino_pdf_url,
-    });
+    };
+  };
+
+  const key = typeof saleId === 'string' && saleId ? saleId : null;
+  const promise = emit();
+  if (key) inFlightBySale.set(key, promise);
+
+  try {
+    const result = await promise;
+    if (key) emittedBySale.set(key, result);
+    return res.status(200).json(result);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[Scontrino] Errore nell'emissione dello scontrino:", error);
     return res.status(500).json({ success: false, message: "Errore durante l'emissione dello scontrino: " + message });
+  } finally {
+    if (key) inFlightBySale.delete(key);
   }
 });
 

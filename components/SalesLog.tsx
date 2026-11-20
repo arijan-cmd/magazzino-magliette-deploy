@@ -8,6 +8,7 @@ interface SalesLogProps {
   isAdmin: boolean;
   onCancelSale: (sale: Sale) => void;
   onEmitReceipt: (sale: Sale) => void;
+  onMarkEmitted: (sale: Sale, numeroDocumento: string) => void;
 }
 
 const STALE_PENDING_MS = 3 * 60 * 1000;
@@ -25,9 +26,11 @@ function receiptView(sale: Sale): ReceiptView {
   return 'unknown';
 }
 
-export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt }: SalesLogProps) {
+export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, onMarkEmitted }: SalesLogProps) {
   const [confirmCancelId, setConfirmCancelId] = useState<string | null>(null);
   const [confirmReceiptId, setConfirmReceiptId] = useState<string | null>(null);
+  const [markId, setMarkId] = useState<string | null>(null);
+  const [markNumber, setMarkNumber] = useState('');
 
   const missingReceipts = sales.filter((s) => receiptView(s) === 'failed').length;
 
@@ -39,8 +42,9 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt }
         <div className="mb-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-900/40 text-red-700 dark:text-red-400 text-sm font-semibold px-4 py-3 rounded-xl flex items-start gap-2.5">
           <Warning size={18} className="shrink-0 mt-0.5" />
           <span>
-            {missingReceipts} vendit{missingReceipts === 1 ? 'a' : 'e'} a carta senza scontrino: usa "Riprova" nella colonna
-            Scontrino.
+            {missingReceipts} vendit{missingReceipts === 1 ? 'a' : 'e'} a carta senza esito dello scontrino. Prima controlla
+            su Billy: se lo scontrino esiste già usa "Già emesso", altrimenti "Riprova". Non riprovare a occhi chiusi: si
+            rischia un doppio scontrino fiscale.
           </span>
         </div>
       )}
@@ -142,11 +146,51 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt }
                           >
                             {failed ? 'Non emesso' : 'Non verificato'}
                           </span>
-                          {failed && sale.receiptError && (
-                            <span className="text-[11px] text-red-500 dark:text-red-400 font-medium max-w-[180px] leading-tight">
-                              {sale.receiptError}
+                          {failed && (
+                            <span className="text-[11px] text-red-500 dark:text-red-400 font-medium max-w-[200px] leading-tight">
+                              {sale.receiptError || 'Esito non confermato: controlla su Billy se lo scontrino esiste prima di riprovare.'}
                             </span>
                           )}
+                          {isAdmin &&
+                            confirmReceiptId !== sale.id &&
+                            (markId === sale.id ? (
+                              <div className="flex flex-col gap-1">
+                                <input
+                                  value={markNumber}
+                                  onChange={(e) => setMarkNumber(e.target.value)}
+                                  placeholder="N. documento (facoltativo)"
+                                  className="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 w-44"
+                                />
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      onMarkEmitted(sale, markNumber);
+                                      setMarkId(null);
+                                      setMarkNumber('');
+                                    }}
+                                    className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline whitespace-nowrap"
+                                  >
+                                    Conferma: è già emesso
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setMarkId(null);
+                                      setMarkNumber('');
+                                    }}
+                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline"
+                                  >
+                                    Annulla
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setMarkId(sale.id)}
+                                className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+                              >
+                                Già emesso
+                              </button>
+                            ))}
                           {canAct &&
                             (confirmReceiptId === sale.id ? (
                               <div className="flex flex-col gap-1">
@@ -171,7 +215,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt }
                                   </button>
                                 </div>
                               </div>
-                            ) : (
+                            ) : markId === sale.id ? null : (
                               <button
                                 onClick={() => setConfirmReceiptId(sale.id)}
                                 className="text-xs font-bold text-brand-600 dark:text-brand-400 hover:underline"

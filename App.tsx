@@ -109,6 +109,14 @@ export default function App() {
     return unsub;
   }, []);
 
+  // Il servizio scontrini su Render (piano gratuito) va in "sleep" dopo un po' di inattività e al primo uso
+  // impiega oltre un minuto a risvegliarsi: lo sveglio subito all'accesso, così al momento della vendita è pronto.
+  useEffect(() => {
+    if (!user) return;
+    const wakeUrl = RECEIPT_API_URL.replace(/\/api\/emit-receipt$/, '/');
+    fetch(wakeUrl, { method: 'GET', mode: 'no-cors' }).catch(() => undefined);
+  }, [user?.uid]);
+
   useEffect(() => {
     if (!user) {
       setProducts([]);
@@ -355,19 +363,25 @@ export default function App() {
       }
     ) => {
       const saleRef = doc(db, 'sales', saleId);
-      const setStatus = (patch: Record<string, unknown>) =>
-        updateDoc(saleRef, { ...patch, receiptUpdatedAt: new Date().toISOString() }).catch((err) =>
-          console.warn('[Scontrino] Impossibile salvare lo stato dello scontrino:', err)
+      // Restituisce true se lo stato è stato salvato su Firestore.
+      const setStatus = (patch: Record<string, unknown>): Promise<boolean> =>
+        updateDoc(saleRef, { ...patch, receiptUpdatedAt: new Date().toISOString() }).then(
+          () => true,
+          (err) => {
+            console.warn('[Scontrino] Impossibile salvare lo stato dello scontrino:', err);
+            return false;
+          }
         );
 
       await setStatus({ receiptStatus: 'pending', receiptError: null });
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 90000);
+      // Il servizio gratuito su Render, dopo un periodo di inattività, può impiegare oltre un minuto a risvegliarsi.
+      const timeout = setTimeout(() => controller.abort(), 180000);
       try {
         const res = await fetch(RECEIPT_API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ product, sale }),
+          body: JSON.stringify({ product, sale, saleId }),
           signal: controller.signal,
         });
         const json = (await res.json().catch(() => null)) as {
@@ -377,20 +391,32 @@ export default function App() {
           message?: string;
         } | null;
         if (res.ok && json?.success) {
-          await setStatus({
+          const saved = await setStatus({
             receiptStatus: 'emitted',
             receiptNumber: json.numeroDocumento ?? null,
             receiptTest: !!json.test,
             receiptError: null,
           });
+          if (!saved) {
+            setActionError(
+              `Scontrino EMESSO${json.numeroDocumento ? ` (${json.numeroDocumento})` : ''} per "${product.name}", ma non sono riuscito a salvarne lo stato. NON riprovare: in Vendite usa "Già emesso".`
+            );
+          }
         } else {
           throw new Error(json?.message || `Errore del servizio scontrini (${res.status})`);
         }
       } catch (err) {
         const raw = (err as { name?: string; message?: string }) || {};
-        const message = raw.name === 'AbortError' ? 'Il servizio scontrini non ha risposto in tempo.' : raw.message || 'Errore sconosciuto';
+        const aborted = raw.name === 'AbortError';
+        const message = aborted
+          ? 'Esito non confermato: il servizio non ha risposto in tempo. Controlla su Billy se lo scontrino esiste prima di riprovare.'
+          : raw.message || 'Errore sconosciuto';
         await setStatus({ receiptStatus: 'failed', receiptError: message.slice(0, 300) });
-        setActionError(`Scontrino NON emesso per "${product.name}": ${message} Riprova dalla sezione Vendite.`);
+        setActionError(
+          aborted
+            ? `Scontrino per "${product.name}": ${message}`
+            : `Scontrino NON emesso per "${product.name}": ${message} Riprova dalla sezione Vendite.`
+        );
       } finally {
         clearTimeout(timeout);
       }
@@ -418,6 +444,22 @@ export default function App() {
     },
     [products, emitReceipt]
   );
+
+  // Segna come emesso uno scontrino che esiste già su Billy ma il cui esito non è stato salvato (nessuna nuova emissione).
+  const markReceiptEmitted = useCallback(async (sale: Sale, numeroDocumento: string) => {
+    try {
+      await updateDoc(doc(db, 'sales', sale.id), {
+        receiptStatus: 'emitted',
+        receiptNumber: numeroDocumento.trim() || null,
+        receiptTest: false,
+        receiptError: null,
+        receiptUpdatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.warn('[Scontrino] Impossibile segnare lo scontrino come emesso:', err);
+      setActionError('Non sono riuscito a salvare lo stato dello scontrino. Riprova tra poco.');
+    }
+  }, []);
 
   const sellProduct = useCallback(
     (input: {
@@ -806,7 +848,7 @@ export default function App() {
               initialProductId={pendingSale?.productId ?? null}
               initialVariantKey={pendingSale?.variantKey ?? null}
             />
-            <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} onEmitReceipt={retryReceipt} />
+            <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} onEmitReceipt={retryReceipt} onMarkEmitted={markReceiptEmitted} />
           </div>
         );
       case ViewType.REPORTS:
