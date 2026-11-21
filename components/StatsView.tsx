@@ -204,7 +204,7 @@ function BarRow({ label, value, max, swatch }: { label: string; value: number; m
   );
 }
 
-function Histogram({ data, id, height = 190 }: { data: { label: string; value: number }[]; id: string; height?: number }) {
+function Histogram({ data, id, height = 190, unit = 'Vendite' }: { data: { label: string; value: number }[]; id: string; height?: number; unit?: string }) {
   const isDark = useDarkMode();
   const max = Math.max(...data.map((d) => d.value), 0);
   return (
@@ -227,7 +227,7 @@ function Histogram({ data, id, height = 190 }: { data: { label: string; value: n
           <Tooltip
             cursor={{ fill: 'rgba(120,150,255,0.10)' }}
             {...tooltipStyles(isDark)}
-            formatter={(v) => [String(v), 'Vendite']}
+            formatter={(v) => [String(v), unit]}
           />
           <Bar dataKey="value" radius={[8, 8, 3, 3]} maxBarSize={44}>
             {data.map((d, i) => (
@@ -513,7 +513,7 @@ export default function StatsView({ sales, products, movements }: StatsViewProps
             </Card>
             <Card title="Taglie più vendute" hint="pezzi">
               {stats.sizes.length ? (
-                <Histogram id="stSize" data={stats.sizes} height={180} />
+                <Histogram id="stSize" data={stats.sizes} height={180} unit="Pezzi" />
               ) : (
                 <p className="text-sm text-slate-400 dark:text-night-500">Nessuna variante registrata.</p>
               )}
