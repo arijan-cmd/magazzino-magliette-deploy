@@ -99,6 +99,22 @@ function titleCase(s: string) {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
 
+
+function tooltipStyles(isDark: boolean) {
+  const text = isDark ? '#e8ecff' : '#0f172a';
+  return {
+    contentStyle: {
+      borderRadius: 12,
+      border: isDark ? '1px solid #2d3aa6' : '1px solid #e2e8f0',
+      background: isDark ? '#0d1360' : '#ffffff',
+      color: text,
+      fontSize: 12,
+    },
+    labelStyle: { color: text, fontWeight: 700 },
+    itemStyle: { color: text },
+  };
+}
+
 function Card({ title, hint, children, className = '' }: { title: string; hint?: string; children: React.ReactNode; className?: string }) {
   return (
     <div
@@ -210,13 +226,7 @@ function Histogram({ data, id, height = 190 }: { data: { label: string; value: n
           <YAxis hide domain={[0, 'dataMax']} />
           <Tooltip
             cursor={{ fill: 'rgba(120,150,255,0.10)' }}
-            contentStyle={{
-              borderRadius: 12,
-              border: isDark ? '1px solid #2d3aa6' : '1px solid #e2e8f0',
-              background: isDark ? '#0d1360' : '#ffffff',
-              color: isDark ? '#e8ecff' : '#0f172a',
-              fontSize: 12,
-            }}
+            {...tooltipStyles(isDark)}
             formatter={(v) => [String(v), 'Vendite']}
           />
           <Bar dataKey="value" radius={[8, 8, 3, 3]} maxBarSize={44}>
@@ -442,13 +452,7 @@ export default function StatsView({ sales, products, movements }: StatsViewProps
                     <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9aa8e0' }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={24} />
                     <YAxis tick={{ fontSize: 11, fill: '#9aa8e0' }} axisLine={false} tickLine={false} width={44} tickFormatter={(v) => `${v}€`} />
                     <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: isDark ? '1px solid #2d3aa6' : '1px solid #e2e8f0',
-                        background: isDark ? '#0d1360' : '#ffffff',
-                        color: isDark ? '#e8ecff' : '#0f172a',
-                        fontSize: 12,
-                      }}
+                      {...tooltipStyles(isDark)}
                       formatter={(v) => [formatCurrency(Number(v)), 'Incassi']}
                     />
                     <Area type="monotone" dataKey="incassi" stroke="url(#stLine)" fill="url(#stArea)" strokeWidth={3} />
@@ -484,13 +488,7 @@ export default function StatsView({ sales, products, movements }: StatsViewProps
                       ))}
                     </Pie>
                     <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: isDark ? '1px solid #2d3aa6' : '1px solid #e2e8f0',
-                        background: isDark ? '#0d1360' : '#ffffff',
-                        color: isDark ? '#e8ecff' : '#0f172a',
-                        fontSize: 12,
-                      }}
+                      {...tooltipStyles(isDark)}
                       formatter={(v, n) => [formatCurrency(Number(v)), String(n)]}
                     />
                   </PieChart>
