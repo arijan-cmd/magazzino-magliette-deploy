@@ -49,33 +49,33 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
         </div>
       )}
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-softer">
+      <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl overflow-hidden shadow-softer">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50/80 dark:bg-slate-800/40">
+            <thead className="bg-slate-50/80 dark:bg-night-800/40">
               <tr>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Prodotto
                 </th>
-                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Q.tà
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Pagamento
                 </th>
-                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Totale
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Venditore
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Data
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Scontrino
                 </th>
-                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Azioni
                 </th>
               </tr>
@@ -84,15 +84,15 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
               {sales.map((sale) => (
                 <tr
                   key={sale.id}
-                  className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                  className="border-t border-slate-100 dark:border-night-800 hover:bg-slate-50/60 dark:hover:bg-night-800/40 transition-colors"
                 >
                   <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
                     {sale.productName}
                     {sale.variantKey && (
-                      <span className="text-slate-400 dark:text-slate-500 font-medium"> · {sale.variantKey.replace('-', ' / ')}</span>
+                      <span className="text-slate-400 dark:text-night-500 font-medium"> · {sale.variantKey.replace('-', ' / ')}</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right font-extrabold text-slate-700 dark:text-slate-200">{sale.quantity}</td>
+                  <td className="px-4 py-3 text-right font-extrabold text-slate-700 dark:text-night-200">{sale.quantity}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-full text-xs ${
@@ -108,13 +108,13 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                   <td className="px-4 py-3 text-right font-extrabold text-slate-900 dark:text-white">
                     {formatCurrency(sale.totalPrice)}
                   </td>
-                  <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">{sale.userName}</td>
-                  <td className="px-4 py-3 text-slate-400 dark:text-slate-500 font-medium">{formatDate(sale.createdAt)}</td>
+                  <td className="px-4 py-3 text-slate-500 dark:text-night-400 font-medium">{sale.userName}</td>
+                  <td className="px-4 py-3 text-slate-400 dark:text-night-500 font-medium">{formatDate(sale.createdAt)}</td>
                   <td className="px-4 py-3">
                     {(() => {
                       const view = receiptView(sale);
                       const badge = 'inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-full text-xs whitespace-nowrap';
-                      if (view === 'not-required') return <span className="text-slate-300 dark:text-slate-600">—</span>;
+                      if (view === 'not-required') return <span className="text-slate-300 dark:text-night-600">—</span>;
                       if (view === 'emitted')
                         return (
                           <span
@@ -140,7 +140,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                             className={`${badge} ${
                               failed
                                 ? 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10'
-                                : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'
+                                : 'text-slate-500 dark:text-night-400 bg-slate-100 dark:bg-night-800'
                             }`}
                             title={sale.receiptError || undefined}
                           >
@@ -159,7 +159,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                                   value={markNumber}
                                   onChange={(e) => setMarkNumber(e.target.value)}
                                   placeholder="N. documento (facoltativo)"
-                                  className="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 w-44"
+                                  className="text-xs px-2 py-1 rounded-lg border border-slate-200 dark:border-night-700 bg-white dark:bg-night-800 text-slate-800 dark:text-night-100 w-44"
                                 />
                                 <div className="flex gap-2">
                                   <button
@@ -177,7 +177,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                                       setMarkId(null);
                                       setMarkNumber('');
                                     }}
-                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline"
+                                    className="text-xs font-bold text-slate-400 dark:text-night-500 hover:underline"
                                   >
                                     Annulla
                                   </button>
@@ -194,7 +194,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                           {canAct &&
                             (confirmReceiptId === sale.id ? (
                               <div className="flex flex-col gap-1">
-                                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 max-w-[200px] leading-tight">
+                                <span className="text-[11px] font-semibold text-slate-500 dark:text-night-400 max-w-[200px] leading-tight">
                                   Emette uno scontrino fiscale reale. Controlla prima su Billy che non esista già.
                                 </span>
                                 <div className="flex gap-2">
@@ -209,7 +209,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                                   </button>
                                   <button
                                     onClick={() => setConfirmReceiptId(null)}
-                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline"
+                                    className="text-xs font-bold text-slate-400 dark:text-night-500 hover:underline"
                                   >
                                     Annulla
                                   </button>
@@ -242,7 +242,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                           </button>
                           <button
                             onClick={() => setConfirmCancelId(null)}
-                            className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                            className="text-xs font-bold text-slate-400 dark:text-night-500 px-2 hover:underline"
                           >
                             Annulla
                           </button>
@@ -250,7 +250,7 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
                       ) : (
                         <button
                           onClick={() => setConfirmCancelId(sale.id)}
-                          className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
+                          className="p-2 text-slate-400 dark:text-night-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
                           title="Storna vendita"
                         >
                           <ArrowUUpLeft size={15} />
@@ -263,9 +263,9 @@ export default function SalesLog({ sales, isAdmin, onCancelSale, onEmitReceipt, 
               {sales.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-4 py-16 text-center">
-                    <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+                    <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-night-700">
                       <Receipt size={32} />
-                      <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessuna vendita registrata.</p>
+                      <p className="text-sm text-slate-400 dark:text-night-500 font-semibold">Nessuna vendita registrata.</p>
                     </div>
                   </td>
                 </tr>

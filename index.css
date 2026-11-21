@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Tema scuro "notte neon": bagliore leggero sulle schede */
+.dark .shadow-soft,
+.dark .shadow-softer,
+.dark .shadow-card {
+  box-shadow: 0 0 0 1px rgba(120, 150, 255, 0.07), 0 10px 30px -14px rgba(34, 228, 240, 0.22);
+}
+
+.dark .neon-chart .recharts-area-curve {
+  filter: drop-shadow(0 0 6px rgba(52, 240, 176, 0.65));
+}

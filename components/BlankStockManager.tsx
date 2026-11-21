@@ -32,8 +32,8 @@ interface BlankStockManagerProps {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
 function GarmentForm({
   garment,
@@ -96,7 +96,7 @@ function GarmentForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-5 shadow-softer"
+      className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-5 shadow-softer"
     >
       <div>
         <label className={labelClass}>Modello *</label>
@@ -125,13 +125,13 @@ function GarmentForm({
             Quantità per variante ·{' '}
             <span className="text-brand-600 dark:text-brand-400 font-extrabold">{totalQuantity} totali</span>
           </label>
-          <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+          <div className="overflow-x-auto border border-slate-200 dark:border-night-800 rounded-xl">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 dark:bg-slate-800/40">
+              <thead className="bg-slate-50 dark:bg-night-800/40">
                 <tr>
-                  <th className="text-left px-3 py-2.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase">Colore</th>
+                  <th className="text-left px-3 py-2.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase">Colore</th>
                   {sortedSizes.map((size) => (
-                    <th key={size} className="text-center px-3 py-2.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase">
+                    <th key={size} className="text-center px-3 py-2.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase">
                       {size}
                     </th>
                   ))}
@@ -139,8 +139,8 @@ function GarmentForm({
               </thead>
               <tbody>
                 {colors.map((color) => (
-                  <tr key={color} className="border-t border-slate-100 dark:border-slate-800">
-                    <td className="px-3 py-2 font-bold text-slate-700 dark:text-slate-200">{color}</td>
+                  <tr key={color} className="border-t border-slate-100 dark:border-night-800">
+                    <td className="px-3 py-2 font-bold text-slate-700 dark:text-night-200">{color}</td>
                     {sortedSizes.map((size) => {
                       const key = variantKey(color, size);
                       return (
@@ -150,7 +150,7 @@ function GarmentForm({
                             min={0}
                             value={variants[key] || 0}
                             onChange={(e) => updateVariantQty(key, Number(e.target.value))}
-                            className="w-16 mx-auto block text-center px-1 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                            className="w-16 mx-auto block text-center px-1 py-1.5 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-700 text-slate-900 dark:text-night-100 rounded-lg text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                           />
                         </td>
                       );
@@ -179,7 +179,7 @@ function GarmentForm({
         <button
           type="button"
           onClick={onCancel}
-          className="border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold px-5 py-2.5 rounded-xl text-sm transition"
+          className="border border-slate-200 dark:border-night-700 text-slate-600 dark:text-night-300 hover:bg-slate-50 dark:hover:bg-night-800 font-bold px-5 py-2.5 rounded-xl text-sm transition"
         >
           Annulla
         </button>
@@ -236,7 +236,7 @@ function TransferPanel({
         Carica {colore} / {taglia} · {garmentModello} in un prodotto
       </p>
       {products.length === 0 ? (
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Non ci sono ancora prodotti in catalogo.</p>
+        <p className="text-xs font-semibold text-slate-500 dark:text-night-400">Non ci sono ancora prodotti in catalogo.</p>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
@@ -273,7 +273,7 @@ function TransferPanel({
             <button
               type="button"
               onClick={onClose}
-              className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline px-2"
+              className="text-xs font-bold text-slate-400 dark:text-night-500 hover:underline px-2"
             >
               Annulla
             </button>
@@ -313,16 +313,16 @@ function GarmentCard({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+    <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 shadow-softer">
       <div className="flex items-center justify-between gap-3 mb-3">
         <div>
           <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{garment.modello}</h3>
-          <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">{garment.quantity} pezzi disponibili</p>
+          <p className="text-xs font-semibold text-slate-400 dark:text-night-500">{garment.quantity} pezzi disponibili</p>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => onEdit(garment)}
-            className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
+            className="p-2 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
             title="Modifica"
           >
             <PencilSimple size={15} />
@@ -340,7 +340,7 @@ function GarmentCard({
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                className="text-xs font-bold text-slate-400 dark:text-night-500 px-2 hover:underline"
               >
                 Annulla
               </button>
@@ -348,7 +348,7 @@ function GarmentCard({
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+              className="p-2 text-slate-400 dark:text-night-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
               title="Elimina"
             >
               <Trash size={15} />
@@ -366,16 +366,16 @@ function GarmentCard({
               <button
                 type="button"
                 onClick={() => toggleColor(color)}
-                className="flex items-center gap-2 w-full text-left py-1.5 px-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors"
+                className="flex items-center gap-2 w-full text-left py-1.5 px-2 rounded-lg hover:bg-slate-50 dark:hover:bg-night-800/60 transition-colors"
               >
                 {isOpen ? <CaretDown size={13} className="text-slate-400" /> : <CaretRight size={13} className="text-slate-400" />}
                 {isOpen ? (
                   <FolderOpen size={15} className="text-brand-500" />
                 ) : (
-                  <Folder size={15} className="text-slate-400 dark:text-slate-500" />
+                  <Folder size={15} className="text-slate-400 dark:text-night-500" />
                 )}
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{color}</span>
-                <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">{colorTotal} pz</span>
+                <span className="text-sm font-bold text-slate-700 dark:text-night-200">{color}</span>
+                <span className="text-xs font-semibold text-slate-400 dark:text-night-500">{colorTotal} pz</span>
               </button>
               {isOpen && (
                 <div className="pl-8 py-1 space-y-1">
@@ -385,7 +385,7 @@ function GarmentCard({
                     return (
                       <div key={key} className="pr-2">
                         <div className="flex items-center justify-between gap-3 py-1">
-                          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Taglia {size}</span>
+                          <span className="text-xs font-semibold text-slate-500 dark:text-night-400">Taglia {size}</span>
                           <div className="flex items-center gap-2">
                             <input
                               key={`${key}-${qty}`}
@@ -399,7 +399,7 @@ function GarmentCard({
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                               }}
-                              className="w-16 text-center px-1.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                              className="w-16 text-center px-1.5 py-1 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-700 text-slate-900 dark:text-night-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                             />
                             <button
                               type="button"
@@ -466,7 +466,7 @@ export default function BlankStockManager({ garments, products, onSave, onDelete
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Magazzino</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium mt-0.5">
             Magliette non stampate disponibili, da caricare nei prodotti già in catalogo
           </p>
         </div>
@@ -500,9 +500,9 @@ export default function BlankStockManager({ garments, products, onSave, onDelete
       )}
 
       {garments.length === 0 && !formOpen ? (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-300 dark:text-night-700">
           <Archive size={32} />
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun modello in magazzino.</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-semibold">Nessun modello in magazzino.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

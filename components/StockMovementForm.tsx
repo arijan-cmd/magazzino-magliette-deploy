@@ -15,8 +15,8 @@ interface StockMovementFormProps {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
 export default function StockMovementForm({ products, onSubmit }: StockMovementFormProps) {
   const [productId, setProductId] = useState('');
@@ -79,12 +79,12 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
         </div>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Carico / Scarico prodotti</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Registra un movimento manuale</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium">Registra un movimento manuale</p>
         </div>
       </div>
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer"
+        className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer"
       >
         <div className="flex gap-3">
           <button
@@ -93,7 +93,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition-all duration-150 ${
               type === 'in'
                 ? 'bg-emerald-600 text-white border-emerald-600 shadow-card'
-                : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'border-slate-200 dark:border-night-700 text-slate-500 dark:text-night-400 hover:bg-slate-50 dark:hover:bg-night-800'
             }`}
           >
             <ArrowCircleDown size={16} /> Carico (entrata)
@@ -104,7 +104,7 @@ export default function StockMovementForm({ products, onSubmit }: StockMovementF
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition-all duration-150 ${
               type === 'out'
                 ? 'bg-red-600 text-white border-red-600 shadow-card'
-                : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'border-slate-200 dark:border-night-700 text-slate-500 dark:text-night-400 hover:bg-slate-50 dark:hover:bg-night-800'
             }`}
           >
             <ArrowCircleUp size={16} /> Scarico (uscita)

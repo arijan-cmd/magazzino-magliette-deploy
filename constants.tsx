@@ -33,6 +33,7 @@ export const NAV_ITEMS: { view: ViewType; label: string; roles?: UserRole[] }[] 
   { view: ViewType.MOVEMENTS, label: 'Movimenti', roles: ['admin', 'staff'] },
   { view: ViewType.POS, label: 'Vendite' },
   { view: ViewType.REPORTS, label: 'Report' },
+  { view: ViewType.STATS, label: 'Statistiche', roles: ['admin'] },
   { view: ViewType.USERS, label: 'Utenti', roles: ['admin'] },
 ];
 

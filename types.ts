@@ -98,6 +98,7 @@ export enum ViewType {
   MOVEMENTS = 'movements',
   POS = 'pos',
   REPORTS = 'reports',
+  STATS = 'stats',
   USERS = 'users',
 }
 

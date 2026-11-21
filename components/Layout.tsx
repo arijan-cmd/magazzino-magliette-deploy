@@ -14,6 +14,7 @@ import {
   ArrowsLeftRight,
   ShoppingCart,
   FileText,
+  ChartLineUp,
   Users,
   SignOut,
   Warning,
@@ -125,35 +126,35 @@ function LoginForm() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 overflow-hidden transition-colors duration-200">
+    <div className="relative min-h-screen flex items-center justify-center bg-slate-50 dark:bg-night-950 px-4 overflow-hidden transition-colors duration-200">
       <div className="pointer-events-none absolute -top-40 -left-40 w-96 h-96 rounded-full bg-brand-200/50 dark:bg-brand-900/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-48 -right-32 w-[28rem] h-[28rem] rounded-full bg-brand-100 dark:bg-brand-950/40 blur-3xl" />
 
       <ThemeToggle
         theme={theme}
         onToggle={toggleTheme}
-        className="absolute top-5 right-5 p-2.5 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white shadow-softer transition"
+        className="absolute top-5 right-5 p-2.5 rounded-xl bg-white/80 dark:bg-night-900/80 border border-slate-200/80 dark:border-night-800 text-slate-500 dark:text-night-400 hover:text-slate-900 dark:hover:text-white shadow-softer transition"
       />
 
-      <div className="relative w-full max-w-sm bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-3xl shadow-soft border border-slate-200/80 dark:border-slate-800 p-8">
+      <div className="relative w-full max-w-sm bg-white/90 dark:bg-night-900/90 backdrop-blur rounded-3xl shadow-soft border border-slate-200/80 dark:border-night-800 p-8">
         <div className="flex flex-col items-center mb-7">
           <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-card mb-4">
             <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <h1 className="text-xl font-extrabold text-slate-900 dark:text-white text-center tracking-tight">{APP_NAME}</h1>
-          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 text-center uppercase tracking-widest mt-1">
+          <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 text-center uppercase tracking-widest mt-1">
             Gestione prodotti
           </p>
         </div>
 
-        <div className="flex mb-7 bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+        <div className="flex mb-7 bg-slate-100 dark:bg-night-800 rounded-xl p-1">
           <button
             type="button"
             onClick={() => setMode('login')}
             className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
               mode === 'login'
-                ? 'bg-white dark:bg-slate-700 shadow-softer text-slate-900 dark:text-white'
-                : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-night-700 shadow-softer text-slate-900 dark:text-white'
+                : 'text-slate-400 dark:text-night-500 hover:text-slate-600 dark:hover:text-night-300'
             }`}
           >
             Accedi
@@ -163,8 +164,8 @@ function LoginForm() {
             onClick={() => setMode('register')}
             className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all duration-200 ${
               mode === 'register'
-                ? 'bg-white dark:bg-slate-700 shadow-softer text-slate-900 dark:text-white'
-                : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
+                ? 'bg-white dark:bg-night-700 shadow-softer text-slate-900 dark:text-white'
+                : 'text-slate-400 dark:text-night-500 hover:text-slate-600 dark:hover:text-night-300'
             }`}
           >
             Registrati
@@ -174,36 +175,36 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Nome</label>
+              <label className="block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5">Nome</label>
               <input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 placeholder:text-slate-400 dark:placeholder:text-night-500 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                 placeholder="Mario Rossi"
               />
             </div>
           )}
           <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Email</label>
+            <label className="block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5">Email</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 placeholder:text-slate-400 dark:placeholder:text-night-500 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
               placeholder="tuaemail@esempio.it"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5">Password</label>
+            <label className="block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5">Password</label>
             <input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+              className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 placeholder:text-slate-400 dark:placeholder:text-night-500 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
               placeholder="••••••••"
             />
           </div>
@@ -217,23 +218,23 @@ function LoginForm() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 active:scale-[0.99] text-white dark:text-slate-900 font-bold py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50 disabled:active:scale-100"
+            className="w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-night-100 active:scale-[0.99] text-white dark:text-night-900 font-bold py-2.5 rounded-xl text-sm shadow-card transition-all duration-150 disabled:opacity-50 disabled:active:scale-100"
           >
             {submitting ? 'Attendere...' : mode === 'login' ? 'Accedi' : 'Crea account'}
           </button>
         </form>
 
         <div className="flex items-center gap-3 my-5">
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-          <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">oppure</span>
-          <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+          <div className="h-px flex-1 bg-slate-200 dark:bg-night-800" />
+          <span className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">oppure</span>
+          <div className="h-px flex-1 bg-slate-200 dark:bg-night-800" />
         </div>
 
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={googleSubmitting}
-          className="w-full flex items-center justify-center gap-2.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-[0.99] text-slate-700 dark:text-slate-200 font-bold py-2.5 rounded-xl text-sm border border-slate-200 dark:border-slate-700 shadow-softer transition-all duration-150 disabled:opacity-50 disabled:active:scale-100"
+          className="w-full flex items-center justify-center gap-2.5 bg-white dark:bg-night-800 hover:bg-slate-50 dark:hover:bg-night-700 active:scale-[0.99] text-slate-700 dark:text-night-200 font-bold py-2.5 rounded-xl text-sm border border-slate-200 dark:border-night-700 shadow-softer transition-all duration-150 disabled:opacity-50 disabled:active:scale-100"
         >
           <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
             <path
@@ -269,6 +270,7 @@ const NAV_ICONS: Record<ViewType, Icon> = {
   [ViewType.MOVEMENTS]: ArrowsLeftRight,
   [ViewType.POS]: ShoppingCart,
   [ViewType.REPORTS]: FileText,
+  [ViewType.STATS]: ChartLineUp,
   [ViewType.USERS]: Users,
 };
 
@@ -286,10 +288,10 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-night-950 transition-colors duration-200">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-[3px] border-slate-200 dark:border-slate-700 border-t-slate-900 dark:border-t-white rounded-full animate-spin" />
-          <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest">Caricamento</p>
+          <div className="w-8 h-8 border-[3px] border-slate-200 dark:border-night-700 border-t-slate-900 dark:border-t-white rounded-full animate-spin" />
+          <p className="text-slate-400 dark:text-night-500 text-xs font-bold uppercase tracking-widest">Caricamento</p>
         </div>
       </div>
     );
@@ -307,16 +309,16 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
       : activeView === view;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col md:flex-row transition-colors duration-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-night-950 flex flex-col md:flex-row transition-colors duration-200">
       {/* Sidebar desktop/tablet landscape */}
-      <aside className="hidden md:flex md:w-64 bg-slate-900 text-white md:flex-col shrink-0 md:h-screen md:sticky md:top-0 dark:border-r dark:border-slate-950/60">
+      <aside className="hidden md:flex md:w-64 bg-gradient-to-b from-[#12198f] to-[#0a1166] text-white md:flex-col shrink-0 md:h-screen md:sticky md:top-0 dark:border-r dark:border-night-950/60">
         <div className="p-5 flex items-center gap-3 border-b border-white/10">
-          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0">
+          <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 shadow-[0_0_18px_rgba(34,228,240,0.55)]">
             <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
             <h1 className="font-extrabold text-sm tracking-tight truncate">{APP_NAME}</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Gestione prodotti</p>
+            <p className="text-[10px] font-bold text-night-300 uppercase tracking-wide">Gestione prodotti</p>
           </div>
         </div>
 
@@ -329,7 +331,9 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
                 key={item.view}
                 onClick={() => onViewChange(item.view)}
                 className={`flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-bold whitespace-nowrap transition-all duration-150 relative rounded-xl ${
-                  active ? 'bg-brand-600 text-white shadow-card' : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  active
+                    ? 'bg-gradient-to-r from-brand-500/70 to-brand-500/10 text-white shadow-[inset_3px_0_0_#22e4f0]'
+                    : 'text-night-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon size={16} />
@@ -350,18 +354,18 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold truncate">{user.displayName}</p>
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">
+            <p className="text-[10px] font-semibold text-night-300 uppercase tracking-wide">
               {ROLE_LABELS[user.role]}
             </p>
           </div>
           <ThemeToggle
             theme={theme}
             onToggle={toggleTheme}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition shrink-0"
+            className="p-1.5 text-night-300 hover:text-white hover:bg-white/10 rounded-lg transition shrink-0"
           />
           <button
             onClick={() => signOut(auth)}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition shrink-0"
+            className="p-1.5 text-night-300 hover:text-white hover:bg-white/10 rounded-lg transition shrink-0"
             title="Esci"
           >
             <SignOut size={15} />
@@ -370,14 +374,14 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
       </aside>
 
       {/* Header fisso mobile/tablet portrait */}
-      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5 bg-white/85 dark:bg-slate-900/85 backdrop-blur-lg border-b border-slate-200/80 dark:border-slate-800">
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5 bg-white/85 dark:bg-night-900/85 backdrop-blur-lg border-b border-slate-200/80 dark:border-night-800">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl overflow-hidden shrink-0">
             <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">{APP_NAME}</p>
-            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-tight">
+            <p className="text-[10px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide leading-tight">
               {ROLE_LABELS[user.role]}
             </p>
           </div>
@@ -386,11 +390,11 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
           <ThemeToggle
             theme={theme}
             onToggle={toggleTheme}
-            className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition"
+            className="p-2.5 rounded-xl text-slate-500 dark:text-night-400 active:bg-slate-100 dark:active:bg-night-800 transition"
           />
           <button
             onClick={() => signOut(auth)}
-            className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 active:bg-slate-100 dark:active:bg-slate-800 transition"
+            className="p-2.5 rounded-xl text-slate-500 dark:text-night-400 active:bg-slate-100 dark:active:bg-night-800 transition"
             title="Esci"
           >
             <SignOut size={17} />
@@ -399,7 +403,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
       </header>
 
       {/* Barra a schede fissa in basso, stile app nativa */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg border-t border-slate-200/80 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch bg-white/90 dark:bg-night-900/90 backdrop-blur-lg border-t border-slate-200/80 dark:border-night-800 pb-[env(safe-area-inset-bottom)]">
         {visibleItems.map((item) => {
           const Icon = NAV_ICONS[item.view];
           const active = isNavActive(item.view);
@@ -407,8 +411,8 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
             <button
               key={item.view}
               onClick={() => onViewChange(item.view)}
-              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[52px] transition-colors active:bg-slate-100/70 dark:active:bg-slate-800/70 ${
-                active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-500'
+              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 py-2 min-h-[52px] transition-colors active:bg-slate-100/70 dark:active:bg-night-800/70 ${
+                active ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-night-500'
               }`}
             >
               {active && <span className="absolute top-0 inset-x-3 h-0.5 rounded-full bg-brand-600 dark:bg-brand-400" />}

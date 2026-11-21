@@ -12,9 +12,9 @@ interface ReportsExportProps {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
-const checkboxLabelClass = 'flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 cursor-pointer';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
+const checkboxLabelClass = 'flex items-center gap-2.5 text-sm font-semibold text-slate-700 dark:text-night-200 cursor-pointer';
 const checkboxClass = 'w-4 h-4 rounded accent-brand-600';
 
 export default function ReportsExport({ products, sales, blankGarments, isAdmin }: ReportsExportProps) {
@@ -96,11 +96,11 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Report</h2>
-        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Esporta i dati dei prodotti in PDF</p>
+        <p className="text-sm text-slate-400 dark:text-night-500 font-medium mt-0.5">Esporta i dati dei prodotti in PDF</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-w-5xl">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
               <ClipboardText size={17} />
@@ -134,7 +134,7 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
                   <button type="button" onClick={() => setSelectedCategories(availableCategories)} className="text-brand-600 dark:text-brand-400 hover:underline">
                     Tutte
                   </button>
-                  <button type="button" onClick={() => setSelectedCategories([])} className="text-slate-400 dark:text-slate-500 hover:underline">
+                  <button type="button" onClick={() => setSelectedCategories([])} className="text-slate-400 dark:text-night-500 hover:underline">
                     Nessuna
                   </button>
                 </div>
@@ -148,7 +148,7 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
                       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer border transition ${
                         checked
                           ? 'bg-brand-50 dark:bg-brand-500/10 border-brand-300 dark:border-brand-800 text-brand-700 dark:text-brand-300'
-                          : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                          : 'bg-slate-50 dark:bg-night-800 border-slate-200 dark:border-night-700 text-slate-500 dark:text-night-400'
                       }`}
                     >
                       <input type="checkbox" checked={checked} onChange={() => toggleCategory(category)} className={checkboxClass} />
@@ -168,7 +168,7 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
           </button>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
               <Receipt size={17} />
@@ -212,7 +212,7 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
                   <button
                     type="button"
                     onClick={() => setSalesCategories([])}
-                    className="text-slate-400 dark:text-slate-500 hover:underline"
+                    className="text-slate-400 dark:text-night-500 hover:underline"
                   >
                     Nessuna
                   </button>
@@ -227,7 +227,7 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
                       className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer border transition ${
                         checked
                           ? 'bg-brand-50 dark:bg-brand-500/10 border-brand-300 dark:border-brand-800 text-brand-700 dark:text-brand-300'
-                          : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                          : 'bg-slate-50 dark:bg-night-800 border-slate-200 dark:border-night-700 text-slate-500 dark:text-night-400'
                       }`}
                     >
                       <input type="checkbox" checked={checked} onChange={() => toggleSalesCategory(category)} className={checkboxClass} />
@@ -247,14 +247,14 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
           </button>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
               <QrCode size={17} />
             </div>
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Etichette QR</h3>
           </div>
-          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed">
+          <p className="text-xs text-slate-400 dark:text-night-500 font-medium leading-relaxed">
             Genera etichette 40×30mm (QR + nome prodotto + colore/taglia + prezzo) per la stampante Phomemo: un'immagine per ogni
             variante con scorta disponibile. Scarica lo ZIP, estrailo sul telefono e importa le immagini nell'app Phomemo
             per stampare. Scansionando il QR si apre direttamente la vendita già compilata.
@@ -284,14 +284,14 @@ export default function ReportsExport({ products, sales, blankGarments, isAdmin 
           </button>
         </div>
         {isAdmin && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer">
+          <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 flex items-center justify-center shrink-0">
                 <Archive size={17} />
               </div>
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Report magazzino</h3>
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 font-medium leading-relaxed">
+            <p className="text-xs text-slate-400 dark:text-night-500 font-medium leading-relaxed">
               Elenco delle magliette non stampate per modello, colore e taglia, con i totali.
             </p>
             <label className={checkboxLabelClass}>

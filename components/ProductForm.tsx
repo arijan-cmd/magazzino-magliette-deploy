@@ -21,8 +21,8 @@ interface ProductFormProps {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
 
 export default function ProductForm({ product, products, blankGarments, onSave, onCancel }: ProductFormProps) {
@@ -168,12 +168,12 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             {product ? 'Modifica prodotto' : 'Nuovo prodotto'}
           </h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Compila i dettagli dell'articolo</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium">Compila i dettagli dell'articolo</p>
         </div>
       </div>
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-softer"
+        className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-6 shadow-softer"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -266,11 +266,11 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
           </div>
         </div>
 
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div className="pt-2 border-t border-slate-100 dark:border-night-800">
           <label className={labelClass + ' mt-4'}>Immagini prodotto</label>
           <div className="flex flex-wrap gap-3">
             {existingImages.map((url) => (
-              <div key={url} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group">
+              <div key={url} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 dark:border-night-700 group">
                 <img src={url} alt="" className="w-full h-full object-cover" />
                 <button
                   type="button"
@@ -296,7 +296,7 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
                 </button>
               </div>
             ))}
-            <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-slate-500 hover:border-brand-400 hover:text-brand-500 cursor-pointer transition">
+            <label className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 dark:border-night-700 flex flex-col items-center justify-center gap-1 text-slate-400 dark:text-night-500 hover:border-brand-400 hover:text-brand-500 cursor-pointer transition">
               <Image size={18} />
               <span className="text-[10px] font-bold">Aggiungi</span>
               <input
@@ -311,10 +311,10 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
               />
             </label>
           </div>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-2">Fino a 5MB per immagine.</p>
+          <p className="text-[11px] text-slate-400 dark:text-night-500 font-medium mt-2">Fino a 5MB per immagine.</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-slate-100 dark:border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-slate-100 dark:border-night-800">
           <div className="pt-4">
             <VariantSelect label="Taglie" values={sortedSizes} onChange={setSizes} options={availableSizes} />
           </div>
@@ -329,13 +329,13 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
               Quantità per variante ·{' '}
               <span className="text-brand-600 dark:text-brand-400 font-extrabold">{totalQuantity} totali</span>
             </label>
-            <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+            <div className="overflow-x-auto border border-slate-200 dark:border-night-800 rounded-xl">
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-800/40">
+                <thead className="bg-slate-50 dark:bg-night-800/40">
                   <tr>
-                    <th className="text-left px-3 py-2.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase">Colore</th>
+                    <th className="text-left px-3 py-2.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase">Colore</th>
                     {sortedSizes.map((size) => (
-                      <th key={size} className="text-center px-3 py-2.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase">
+                      <th key={size} className="text-center px-3 py-2.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase">
                         {size}
                       </th>
                     ))}
@@ -343,8 +343,8 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
                 </thead>
                 <tbody>
                   {colors.map((color) => (
-                    <tr key={color} className="border-t border-slate-100 dark:border-slate-800">
-                      <td className="px-3 py-2 font-bold text-slate-700 dark:text-slate-200">{color}</td>
+                    <tr key={color} className="border-t border-slate-100 dark:border-night-800">
+                      <td className="px-3 py-2 font-bold text-slate-700 dark:text-night-200">{color}</td>
                       {sortedSizes.map((size) => {
                         const key = variantKey(color, size);
                         return (
@@ -354,7 +354,7 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
                               min={0}
                               value={variants[key] || 0}
                               onChange={(e) => updateVariantQty(key, Number(e.target.value))}
-                              className="w-16 mx-auto block text-center px-1 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                              className="w-16 mx-auto block text-center px-1 py-1.5 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-700 text-slate-900 dark:text-night-100 rounded-lg text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                             />
                           </td>
                         );
@@ -397,7 +397,7 @@ export default function ProductForm({ product, products, blankGarments, onSave, 
           <button
             type="button"
             onClick={onCancel}
-            className="border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold px-5 py-2.5 rounded-xl text-sm transition"
+            className="border border-slate-200 dark:border-night-700 text-slate-600 dark:text-night-300 hover:bg-slate-50 dark:hover:bg-night-800 font-bold px-5 py-2.5 rounded-xl text-sm transition"
           >
             Annulla
           </button>

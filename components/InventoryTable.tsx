@@ -82,16 +82,16 @@ function ColorFolder({
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-2 w-full text-left py-1.5 px-2 rounded-lg hover:bg-white dark:hover:bg-slate-800/60 transition-colors"
+        className="flex items-center gap-2 w-full text-left py-1.5 px-2 rounded-lg hover:bg-white dark:hover:bg-night-800/60 transition-colors"
       >
         {isOpen ? <CaretDown size={13} className="text-slate-400" /> : <CaretRight size={13} className="text-slate-400" />}
         {isOpen ? (
           <FolderOpen size={15} className="text-brand-500" />
         ) : (
-          <Folder size={15} className="text-slate-400 dark:text-slate-500" />
+          <Folder size={15} className="text-slate-400 dark:text-night-500" />
         )}
-        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{color}</span>
-        <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">{colorTotal} pz</span>
+        <span className="text-sm font-bold text-slate-700 dark:text-night-200">{color}</span>
+        <span className="text-xs font-semibold text-slate-400 dark:text-night-500">{colorTotal} pz</span>
       </button>
       {isOpen && (
         <div className="pl-8 py-1 space-y-0.5">
@@ -100,7 +100,7 @@ function ColorFolder({
             const qty = product.variants[key] || 0;
             return (
               <div key={key} className="flex items-center justify-between gap-3 py-1 pr-2">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">Taglia {size}</span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-night-400">Taglia {size}</span>
                 {canManageStock ? (
                   <input
                     key={`${key}-${qty}`}
@@ -111,10 +111,10 @@ function ColorFolder({
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                     }}
-                    className="w-16 text-center px-1.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                    className="w-16 text-center px-1.5 py-1 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-700 text-slate-900 dark:text-night-100 rounded-lg text-xs font-bold outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                   />
                 ) : (
-                  <span className="w-16 text-center px-1.5 py-1 text-slate-600 dark:text-slate-300 text-xs font-bold">{qty}</span>
+                  <span className="w-16 text-center px-1.5 py-1 text-slate-600 dark:text-night-300 text-xs font-bold">{qty}</span>
                 )}
               </div>
             );
@@ -169,12 +169,12 @@ function ProductCard({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-softer flex flex-col">
-      <div className="relative aspect-square bg-slate-100 dark:bg-slate-800">
+    <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl overflow-hidden shadow-softer flex flex-col">
+      <div className="relative aspect-square bg-slate-100 dark:bg-night-800">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt="" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+          <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-night-700">
             <Package size={40} />
           </div>
         )}
@@ -187,7 +187,7 @@ function ProductCard({
       </div>
 
       <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+        <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">
           <span>SKU {product.sku}</span>
           <span className="flex items-center gap-1 text-brand-600 dark:text-brand-400">
             <TrendUp size={13} /> {soldCount} venduti
@@ -201,14 +201,14 @@ function ProductCard({
 
         {hasVariants ? (
           <div className="space-y-2.5">
-            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Varianti per colore</p>
+            <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Varianti per colore</p>
             {product.colors.map((color) => {
               const colorTotal = product.sizes.reduce((sum, size) => sum + (product.variants[variantKey(color, size)] || 0), 0);
               return (
-                <div key={color} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-2.5">
+                <div key={color} className="bg-slate-50 dark:bg-night-800/50 rounded-xl p-2.5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-extrabold text-slate-700 dark:text-slate-200">{color}</span>
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">Pezzi: {colorTotal}</span>
+                    <span className="text-xs font-extrabold text-slate-700 dark:text-night-200">{color}</span>
+                    <span className="text-[11px] font-bold text-slate-400 dark:text-night-500">Pezzi: {colorTotal}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {sortSizes(product.sizes).map((size) => {
@@ -217,9 +217,9 @@ function ProductCard({
                       return (
                         <div
                           key={key}
-                          className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-1.5 py-1"
+                          className="flex items-center gap-1 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-700 rounded-lg px-1.5 py-1"
                         >
-                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500">{size}</span>
+                          <span className="text-[10px] font-bold text-slate-400 dark:text-night-500">{size}</span>
                           {canManageStock ? (
                             <input
                               key={`${key}-${qty}`}
@@ -230,10 +230,10 @@ function ProductCard({
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
                               }}
-                              className="w-9 text-center bg-transparent text-slate-900 dark:text-slate-100 text-xs font-bold outline-none"
+                              className="w-9 text-center bg-transparent text-slate-900 dark:text-night-100 text-xs font-bold outline-none"
                             />
                           ) : (
-                            <span className="w-9 text-center text-slate-600 dark:text-slate-300 text-xs font-bold">{qty}</span>
+                            <span className="w-9 text-center text-slate-600 dark:text-night-300 text-xs font-bold">{qty}</span>
                           )}
                         </div>
                       );
@@ -247,7 +247,7 @@ function ProductCard({
 
         <div className="flex items-center justify-between pt-1 mt-auto">
           <div>
-            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Giacenza tot</p>
+            <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Giacenza tot</p>
             <p className="text-lg font-extrabold text-slate-900 dark:text-white">{product.quantity}</p>
           </div>
           {(isAdmin || canManageStock) && (
@@ -256,7 +256,7 @@ function ProductCard({
                 <button
                   onClick={() => onPrintLabel(product)}
                   disabled={printingId === product.id || product.quantity === 0}
-                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                  className="p-2 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
                   title="Stampa etichetta"
                 >
                   <QrCode size={15} />
@@ -265,7 +265,7 @@ function ProductCard({
               {isAdmin && (
                 <button
                   onClick={() => onEdit(product)}
-                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
                   title="Modifica"
                 >
                   <PencilSimple size={15} />
@@ -284,7 +284,7 @@ function ProductCard({
                   </button>
                   <button
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                    className="text-xs font-bold text-slate-400 dark:text-night-500 px-2 hover:underline"
                   >
                     Annulla
                   </button>
@@ -292,7 +292,7 @@ function ProductCard({
               ) : (
                 <button
                   onClick={() => setConfirmDeleteId(product.id)}
-                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                  className="p-2 text-slate-400 dark:text-night-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                   title="Elimina"
                 >
                   <Trash size={15} />
@@ -388,7 +388,7 @@ export default function InventoryTable({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Prodotti</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">{products.length} prodotti in catalogo</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium mt-0.5">{products.length} prodotti in catalogo</p>
         </div>
         {isAdmin && (
           <button
@@ -414,18 +414,18 @@ export default function InventoryTable({
 
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
-          <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+          <MagnifyingGlass size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-night-500" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cerca per nome o SKU..."
-            className="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+            className="w-full pl-10 pr-3.5 py-2.5 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-800 rounded-xl text-sm text-slate-900 dark:text-night-100 placeholder:text-slate-400 dark:placeholder:text-night-500 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
           />
         </div>
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+          className="px-3.5 py-2.5 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-800 rounded-xl text-sm font-medium text-slate-700 dark:text-night-200 outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
         >
           {categories.map((c) => (
             <option key={c} value={c}>
@@ -433,7 +433,7 @@ export default function InventoryTable({
             </option>
           ))}
         </select>
-        <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-1 shrink-0">
+        <div className="flex items-center gap-1 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-800 rounded-xl p-1 shrink-0">
           <button
             type="button"
             onClick={() => setViewMode('table')}
@@ -441,7 +441,7 @@ export default function InventoryTable({
             className={`p-2 rounded-lg transition-colors ${
               viewMode === 'table'
                 ? 'bg-brand-600 text-white'
-                : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'text-slate-400 dark:text-night-500 hover:bg-slate-100 dark:hover:bg-night-800'
             }`}
           >
             <Rows size={16} />
@@ -453,7 +453,7 @@ export default function InventoryTable({
             className={`p-2 rounded-lg transition-colors ${
               viewMode === 'grid'
                 ? 'bg-brand-600 text-white'
-                : 'text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'text-slate-400 dark:text-night-500 hover:bg-slate-100 dark:hover:bg-night-800'
             }`}
           >
             <SquaresFour size={16} />
@@ -463,9 +463,9 @@ export default function InventoryTable({
 
       {viewMode === 'grid' ? (
         filtered.length === 0 ? (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+          <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-300 dark:text-night-700">
             <Package size={32} />
-            <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun prodotto trovato.</p>
+            <p className="text-sm text-slate-400 dark:text-night-500 font-semibold">Nessun prodotto trovato.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -489,28 +489,28 @@ export default function InventoryTable({
           </div>
         )
       ) : (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-softer">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl overflow-hidden shadow-softer">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50/80 dark:bg-slate-800/40">
+              <thead className="bg-slate-50/80 dark:bg-night-800/40">
                 <tr>
                   <th className="w-8 px-2 py-3.5" />
-                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Prodotto
                   </th>
-                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     SKU
                   </th>
-                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Categoria
                   </th>
-                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Prezzo
                   </th>
-                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Quantità
                   </th>
-                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Azioni
                   </th>
                 </tr>
@@ -522,13 +522,13 @@ export default function InventoryTable({
                   const isExpanded = expandedProducts.has(product.id);
                   return (
                     <React.Fragment key={product.id}>
-                      <tr className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                      <tr className="border-t border-slate-100 dark:border-night-800 hover:bg-slate-50/60 dark:hover:bg-night-800/40 transition-colors">
                         <td className="px-2 py-3.5">
                           {hasVariants && (
                             <button
                               type="button"
                               onClick={() => toggleProduct(product.id)}
-                              className="p-1 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 rounded transition-colors"
+                              className="p-1 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 rounded transition-colors"
                               title={isExpanded ? 'Comprimi' : 'Mostra taglie e colori'}
                             >
                               {isExpanded ? <CaretDown size={16} /> : <CaretRight size={16} />}
@@ -544,21 +544,21 @@ export default function InventoryTable({
                               <img
                                 src={product.images[0]}
                                 alt=""
-                                className="w-9 h-9 rounded-lg object-cover border border-slate-200 dark:border-slate-700 shrink-0"
+                                className="w-9 h-9 rounded-lg object-cover border border-slate-200 dark:border-night-700 shrink-0"
                               />
                             ) : (
-                              <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0" />
+                              <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-night-800 shrink-0" />
                             )}
                             {product.name}
                           </div>
                         </td>
-                        <td className="px-4 py-3.5 text-slate-400 dark:text-slate-500 font-medium">{product.sku}</td>
+                        <td className="px-4 py-3.5 text-slate-400 dark:text-night-500 font-medium">{product.sku}</td>
                         <td className="px-4 py-3.5">
-                          <span className="text-xs font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                          <span className="text-xs font-bold text-slate-500 dark:text-night-300 bg-slate-100 dark:bg-night-800 px-2 py-1 rounded-full">
                             {product.category}
                           </span>
                         </td>
-                        <td className="px-4 py-3.5 text-right font-bold text-slate-700 dark:text-slate-200">
+                        <td className="px-4 py-3.5 text-right font-bold text-slate-700 dark:text-night-200">
                           {formatCurrency(product.salePrice)}
                         </td>
                         <td className="px-4 py-3.5 text-right">
@@ -579,7 +579,7 @@ export default function InventoryTable({
                               <button
                                 onClick={() => onPrintLabel(product)}
                                 disabled={printingId === product.id || product.quantity === 0}
-                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
+                                className="p-2 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors disabled:opacity-40 disabled:pointer-events-none"
                                 title="Stampa etichetta"
                               >
                                 <QrCode size={15} />
@@ -588,7 +588,7 @@ export default function InventoryTable({
                             {isAdmin && (
                               <button
                                 onClick={() => onEdit(product)}
-                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
+                                className="p-2 text-slate-400 dark:text-night-500 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg transition-colors"
                                 title="Modifica"
                               >
                                 <PencilSimple size={15} />
@@ -608,7 +608,7 @@ export default function InventoryTable({
                                   </button>
                                   <button
                                     onClick={() => setConfirmDeleteId(null)}
-                                    className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                                    className="text-xs font-bold text-slate-400 dark:text-night-500 px-2 hover:underline"
                                   >
                                     Annulla
                                   </button>
@@ -616,7 +616,7 @@ export default function InventoryTable({
                               ) : (
                                 <button
                                   onClick={() => setConfirmDeleteId(product.id)}
-                                  className="p-2 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                                  className="p-2 text-slate-400 dark:text-night-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                                   title="Elimina"
                                 >
                                   <Trash size={15} />
@@ -626,8 +626,8 @@ export default function InventoryTable({
                         </td>
                       </tr>
                       {hasVariants && isExpanded && (
-                        <tr className="border-t border-slate-100 dark:border-slate-800">
-                          <td colSpan={7} className="p-0 bg-slate-50/60 dark:bg-slate-950/40">
+                        <tr className="border-t border-slate-100 dark:border-night-800">
+                          <td colSpan={7} className="p-0 bg-slate-50/60 dark:bg-night-950/40">
                             <div className="px-4 py-3 pl-12 space-y-0.5 max-w-sm">
                               {product.colors.map((color) => (
                                 <ColorFolder
@@ -650,9 +650,9 @@ export default function InventoryTable({
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-4 py-16 text-center">
-                      <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+                      <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-night-700">
                         <Package size={32} />
-                        <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun prodotto trovato.</p>
+                        <p className="text-sm text-slate-400 dark:text-night-500 font-semibold">Nessun prodotto trovato.</p>
                       </div>
                     </td>
                   </tr>

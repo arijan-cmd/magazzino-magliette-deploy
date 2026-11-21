@@ -60,12 +60,12 @@ function KpiCard({
   tint: string;
 }) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-softer hover:shadow-card transition-shadow duration-200">
+    <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 flex items-center gap-4 shadow-softer hover:shadow-card transition-shadow duration-200">
       <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tint}`}>
         <Icon size={19} />
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{label}</p>
+        <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">{label}</p>
         <p className="text-xl font-extrabold text-slate-900 dark:text-white truncate">{value}</p>
       </div>
     </div>
@@ -196,7 +196,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Dashboard</h2>
-        <p className="text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">Panoramica dei tuoi prodotti</p>
+        <p className="text-sm text-slate-400 dark:text-night-500 font-medium mt-0.5">Panoramica dei tuoi prodotti</p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -212,15 +212,15 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
           value={String(totalUnits)}
           tint="bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
         />
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-softer hover:shadow-card transition-shadow duration-200">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 flex items-center gap-4 shadow-softer hover:shadow-card transition-shadow duration-200">
           <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <CurrencyEur size={19} />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Valore prodotti</p>
+            <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Valore prodotti</p>
             <p className="text-xl font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(stockValue)}</p>
             {isAdmin && (
-              <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 truncate">
+              <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 truncate">
                 Vendita: <span className="text-emerald-600 dark:text-emerald-400">{formatCurrency(stockSaleValue)}</span>
               </p>
             )}
@@ -241,7 +241,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value as PeriodType)}
-              className="px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+              className="px-3 py-1.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 text-slate-700 dark:text-night-200 rounded-lg text-xs font-bold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
             >
               {Object.values(PeriodType).map((p) => (
                 <option key={p} value={p}>
@@ -255,29 +255,29 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   type="date"
                   value={customFrom}
                   onChange={(e) => setCustomFrom(e.target.value)}
-                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 text-slate-700 dark:text-night-200 rounded-lg text-xs font-semibold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                 />
-                <span className="text-xs font-bold text-slate-400 dark:text-slate-500">–</span>
+                <span className="text-xs font-bold text-slate-400 dark:text-night-500">–</span>
                 <input
                   type="date"
                   value={customTo}
                   onChange={(e) => setCustomTo(e.target.value)}
-                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+                  className="px-2.5 py-1.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 text-slate-700 dark:text-night-200 rounded-lg text-xs font-semibold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
                 />
               </>
             )}
           </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
-            <h4 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">Fatturato</h4>
+          <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 shadow-softer">
+            <h4 className="text-xs font-extrabold text-slate-400 dark:text-night-500 uppercase tracking-wide mb-4">Fatturato</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <Money size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Contanti (lordo)</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Contanti (lordo)</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cashGross)}</p>
                 </div>
               </div>
@@ -286,7 +286,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <CreditCard size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Carta (lordo)</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Carta (lordo)</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(cardGross)}</p>
                 </div>
               </div>
@@ -295,7 +295,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <CurrencyEur size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Totale lordo</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Totale lordo</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalGross)}</p>
                 </div>
               </div>
@@ -304,22 +304,22 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <Percent size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Commissioni</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Commissioni</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{formatCurrency(totalCommission)}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
-            <h4 className="text-xs font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">Vendite</h4>
+          <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 shadow-softer">
+            <h4 className="text-xs font-extrabold text-slate-400 dark:text-night-500 uppercase tracking-wide mb-4">Vendite</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <ShoppingBag size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi (contanti)</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Capi (contanti)</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems}</p>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <ShoppingBag size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi (carta)</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Capi (carta)</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cardItems}</p>
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <Stack size={18} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Capi totali</p>
+                  <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 uppercase tracking-wide">Capi totali</p>
                   <p className="text-lg font-extrabold text-slate-900 dark:text-white truncate">{cashItems + cardItems}</p>
                 </div>
               </div>
@@ -347,42 +347,42 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+        <div className="lg:col-span-2 bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 shadow-softer">
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Andamento incassi · {PERIOD_LABELS[period]}</h3>
-            <div className="text-xs font-semibold text-slate-400 dark:text-slate-500">
-              Totale <span className="text-slate-700 dark:text-slate-200 font-bold">{formatCurrency(totalGross)}</span>
+            <div className="text-xs font-semibold text-slate-400 dark:text-night-500">
+              Totale <span className="text-slate-700 dark:text-night-200 font-bold">{formatCurrency(totalGross)}</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorIncasso" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#7c86e2" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#7c86e2" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#22e4f0" stopOpacity={0.45} />
+                  <stop offset="95%" stopColor="#22e4f0" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={40} />
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#9aa8e0' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#9aa8e0' }} axisLine={false} tickLine={false} width={40} />
               <Tooltip
                 formatter={(value) => formatCurrency(Number(value) || 0)}
                 contentStyle={{
                   borderRadius: 12,
-                  border: isDark ? '1px solid #334155' : '1px solid #e2e8f0',
+                  border: isDark ? '1px solid #2d3aa6' : '1px solid #e2e8f0',
                   fontSize: 12,
                   boxShadow: '0 4px 16px -4px rgba(15,23,42,0.12)',
-                  background: isDark ? '#0f172a' : '#ffffff',
+                  background: isDark ? '#0d1360' : '#ffffff',
                   color: isDark ? '#f1f5f9' : '#0f172a',
                 }}
                 labelStyle={{ color: isDark ? '#f1f5f9' : '#0f172a' }}
               />
-              <Area type="monotone" dataKey="incasso" stroke="#5b63d6" fill="url(#colorIncasso)" strokeWidth={2.5} />
+              <Area type="monotone" dataKey="incasso" stroke="#22e4f0" fill="url(#colorIncasso)" strokeWidth={2.5} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-softer">
+        <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-5 shadow-softer">
           <div className="flex items-center justify-between gap-2 mb-4">
             <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">Attività recente</h3>
             {isAdmin && movements.length > 0 && (
@@ -403,7 +403,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                     </button>
                     <button
                       onClick={() => setConfirmReset(false)}
-                      className="text-xs font-bold text-slate-400 dark:text-slate-500 hover:underline"
+                      className="text-xs font-bold text-slate-400 dark:text-night-500 hover:underline"
                     >
                       Annulla
                     </button>
@@ -412,7 +412,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   <button
                     onClick={() => setConfirmReset(true)}
                     title="Resetta storico movimenti"
-                    className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
+                    className="p-1.5 text-slate-400 dark:text-night-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
                   >
                     <Trash size={15} />
                   </button>
@@ -430,8 +430,8 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                     <Icon size={13} />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-bold text-slate-800 dark:text-slate-100 truncate">{m.productName}</p>
-                    <p className="text-slate-400 dark:text-slate-500 font-medium">
+                    <p className="font-bold text-slate-800 dark:text-night-100 truncate">{m.productName}</p>
+                    <p className="text-slate-400 dark:text-night-500 font-medium">
                       {m.reason} · {formatDate(m.createdAt)}
                     </p>
                   </div>
@@ -439,7 +439,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
               );
             })}
             {recentActivity.length === 0 && (
-              <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Nessuna attività recente.</p>
+              <p className="text-xs text-slate-400 dark:text-night-500 font-medium">Nessuna attività recente.</p>
             )}
           </div>
         </div>

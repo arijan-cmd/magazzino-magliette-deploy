@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Plus, X } from '@phosphor-icons/react';
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
 interface VariantSelectProps {
   label: string;
@@ -74,7 +74,7 @@ export default function VariantSelect({ label, values, onChange, options }: Vari
           <button
             type="button"
             onClick={confirmNew}
-            className="px-3.5 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition"
+            className="px-3.5 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-night-100 text-white dark:text-night-900 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition"
           >
             <Plus size={14} /> Aggiungi
           </button>
@@ -84,7 +84,7 @@ export default function VariantSelect({ label, values, onChange, options }: Vari
               setDraft('');
               setAddingNew(false);
             }}
-            className="px-3 py-2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 text-xs font-bold shrink-0"
+            className="px-3 py-2 text-slate-400 dark:text-night-500 hover:text-slate-600 dark:hover:text-night-300 text-xs font-bold shrink-0"
           >
             Annulla
           </button>
@@ -108,7 +108,7 @@ export default function VariantSelect({ label, values, onChange, options }: Vari
           <button
             type="button"
             onClick={() => setAddingNew(true)}
-            className="px-3.5 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition whitespace-nowrap"
+            className="px-3.5 py-2 bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-night-100 text-white dark:text-night-900 rounded-xl text-xs font-bold flex items-center gap-1 shrink-0 transition whitespace-nowrap"
           >
             <Plus size={14} /> Nuovo/a
           </button>

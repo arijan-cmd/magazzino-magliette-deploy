@@ -33,10 +33,11 @@ const RECEIPT_API_URL = import.meta.env.VITE_RECEIPT_API_URL || '/api/emit-recei
 
 // Caricata solo quando si apre la sezione Report: contiene le librerie pesanti (PDF, QR, ZIP).
 const ReportsExport = lazy(() => import('./components/ReportsExport'));
+const StatsView = lazy(() => import('./components/StatsView'));
 
 function ReportsLoadingFallback() {
   return (
-    <div className="flex items-center justify-center py-16 text-sm font-semibold text-slate-400 dark:text-slate-500">
+    <div className="flex items-center justify-center py-16 text-sm font-semibold text-slate-400 dark:text-night-500">
       Caricamento report...
     </div>
   );
@@ -857,6 +858,12 @@ export default function App() {
             <ReportsExport products={products} sales={sales} blankGarments={blankGarments} isAdmin={isAdmin} />
           </Suspense>
         );
+      case ViewType.STATS:
+        return isAdmin ? (
+          <Suspense fallback={<ReportsLoadingFallback />}>
+            <StatsView sales={sales} products={products} movements={movements} />
+          </Suspense>
+        ) : null;
       case ViewType.USERS:
         return isAdmin ? (
           <UsersSettings users={users} currentUserId={user?.uid || ''} onUpdateRole={updateUserRole} />
@@ -868,28 +875,28 @@ export default function App() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 transition-colors duration-200">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/50 rounded-3xl shadow-soft p-8 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-night-950 px-4 transition-colors duration-200">
+        <div className="max-w-md w-full bg-white dark:bg-night-900 border border-amber-200 dark:border-amber-900/50 rounded-3xl shadow-soft p-8 text-center">
           <div className="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 text-xl font-extrabold">
             !
           </div>
           <h1 className="text-lg font-extrabold text-slate-900 dark:text-white mb-2 tracking-tight">Configurazione Firebase mancante</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+          <p className="text-sm text-slate-500 dark:text-night-400 mb-4 leading-relaxed">
             Per usare l'app devi collegare un progetto Firebase: crea il file{' '}
-            <code className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
+            <code className="bg-slate-100 dark:bg-night-800 text-slate-700 dark:text-night-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
               .env
             </code>{' '}
             partendo da{' '}
-            <code className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
+            <code className="bg-slate-100 dark:bg-night-800 text-slate-700 dark:text-night-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
               .env.example
             </code>{' '}
             e compila le variabili{' '}
-            <code className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
+            <code className="bg-slate-100 dark:bg-night-800 text-slate-700 dark:text-night-200 px-1.5 py-0.5 rounded-md text-xs font-semibold">
               VITE_FIREBASE_*
             </code>{' '}
             con i dati del tuo progetto Firebase, poi riavvia il server.
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+          <p className="text-xs text-slate-400 dark:text-night-500 font-medium">
             Consulta il README per la guida completa ai passi di configurazione.
           </p>
         </div>

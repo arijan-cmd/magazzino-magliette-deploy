@@ -37,7 +37,7 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as 'all' | MovementType)}
-          className="px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
+          className="px-3 py-2 bg-white dark:bg-night-900 border border-slate-200 dark:border-night-800 text-slate-700 dark:text-night-200 rounded-xl text-xs font-bold outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40"
         >
           <option value="all">Tutti i tipi</option>
           <option value="in">Carico</option>
@@ -47,29 +47,29 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
         </select>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden shadow-softer">
+      <div className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl overflow-hidden shadow-softer">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50/80 dark:bg-slate-800/40">
+            <thead className="bg-slate-50/80 dark:bg-night-800/40">
               <tr>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">Tipo</th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">Tipo</th>
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Prodotto
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Motivo
                 </th>
-                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Quantità
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Utente
                 </th>
-                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                   Data
                 </th>
                 {isAdmin && (
-                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide">
+                  <th className="text-right px-4 py-3.5 font-bold text-slate-500 dark:text-night-400 text-xs uppercase tracking-wide">
                     Azioni
                   </th>
                 )}
@@ -83,7 +83,7 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
                 return (
                   <tr
                     key={m.id}
-                    className="border-t border-slate-100 dark:border-slate-800 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+                    className="border-t border-slate-100 dark:border-night-800 hover:bg-slate-50/60 dark:hover:bg-night-800/40 transition-colors"
                   >
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1 rounded-full text-xs ${meta.color}`}>
@@ -93,16 +93,16 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
                     <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">
                       {m.productName}
                       {m.variantKey && (
-                        <span className="text-slate-400 dark:text-slate-500 font-medium"> · {m.variantKey.replace('-', ' / ')}</span>
+                        <span className="text-slate-400 dark:text-night-500 font-medium"> · {m.variantKey.replace('-', ' / ')}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">{m.reason}</td>
-                    <td className="px-4 py-3 text-right font-extrabold text-slate-700 dark:text-slate-200">
+                    <td className="px-4 py-3 text-slate-500 dark:text-night-400 font-medium">{m.reason}</td>
+                    <td className="px-4 py-3 text-right font-extrabold text-slate-700 dark:text-night-200">
                       {meta.sign}
                       {m.quantity}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 font-medium">{m.userName}</td>
-                    <td className="px-4 py-3 text-slate-400 dark:text-slate-500 font-medium">{formatDate(m.createdAt)}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-night-400 font-medium">{m.userName}</td>
+                    <td className="px-4 py-3 text-slate-400 dark:text-night-500 font-medium">{formatDate(m.createdAt)}</td>
                     {isAdmin && (
                       <td className="px-4 py-3">
                         {cancellable && (
@@ -120,7 +120,7 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
                                 </button>
                                 <button
                                   onClick={() => setConfirmCancelId(null)}
-                                  className="text-xs font-bold text-slate-400 dark:text-slate-500 px-2 hover:underline"
+                                  className="text-xs font-bold text-slate-400 dark:text-night-500 px-2 hover:underline"
                                 >
                                   Annulla
                                 </button>
@@ -128,7 +128,7 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
                             ) : (
                               <button
                                 onClick={() => setConfirmCancelId(m.id)}
-                                className="p-2 text-slate-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
+                                className="p-2 text-slate-400 dark:text-night-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 rounded-lg transition-colors"
                                 title="Annulla carico da magazzino"
                               >
                                 <ArrowUUpLeft size={15} />
@@ -144,9 +144,9 @@ export default function StockMovementsLog({ movements, isAdmin, onCancelTransfer
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={isAdmin ? 7 : 6} className="px-4 py-16 text-center">
-                    <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-slate-700">
+                    <div className="flex flex-col items-center gap-2 text-slate-300 dark:text-night-700">
                       <ClockCounterClockwise size={32} />
-                      <p className="text-sm text-slate-400 dark:text-slate-500 font-semibold">Nessun movimento registrato.</p>
+                      <p className="text-sm text-slate-400 dark:text-night-500 font-semibold">Nessun movimento registrato.</p>
                     </div>
                   </td>
                 </tr>

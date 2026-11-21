@@ -18,8 +18,8 @@ interface SaleFormProps {
 }
 
 const inputClass =
-  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-slate-100 outline-none transition focus:bg-white dark:focus:bg-slate-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
-const labelClass = 'block text-xs font-bold text-slate-500 dark:text-slate-400 mb-1.5';
+  'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
+const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
 export default function SaleForm({ products, onSell, initialProductId, initialVariantKey }: SaleFormProps) {
   const [productId, setProductId] = useState('');
@@ -114,12 +114,12 @@ export default function SaleForm({ products, onSell, initialProductId, initialVa
         </div>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Registra vendita</h2>
-          <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Punto vendita</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium">Punto vendita</p>
         </div>
       </div>
       <form
         onSubmit={handleSubmit}
-        className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 space-y-4 shadow-softer"
+        className="bg-white dark:bg-night-900 border border-slate-200/80 dark:border-night-800 rounded-2xl p-6 space-y-4 shadow-softer"
       >
         <div>
           <label className={labelClass}>Prodotto</label>
