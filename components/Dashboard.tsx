@@ -376,6 +376,7 @@ export default function Dashboard({ products, sales, movements, isAdmin, onReset
                   color: isDark ? '#f1f5f9' : '#0f172a',
                 }}
                 labelStyle={{ color: isDark ? '#f1f5f9' : '#0f172a' }}
+                itemStyle={{ color: isDark ? '#f1f5f9' : '#0f172a' }}
               />
               <Area type="monotone" dataKey="incasso" stroke="#22e4f0" fill="url(#colorIncasso)" strokeWidth={2.5} />
             </AreaChart>
