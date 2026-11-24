@@ -159,7 +159,12 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
     if (options.includeVariants) {
       const variantText = Object.entries(p.variants)
         .filter(([, qty]) => qty > 0)
-        .map(([key, qty]) => `${key.replace('-', '/')}: ${qty}`)
+        .map(([key, qty]) => {
+          const [colore, taglia] = splitVariantKey(key);
+          return { colore, taglia, qty };
+        })
+        .sort(compareColorSize)
+        .map(({ colore, taglia, qty }) => `${colore}/${taglia}: ${qty}`)
         .join(', ');
       row.push(variantText || '-');
     }
@@ -207,9 +212,10 @@ interface SkuGroup {
   variants: VariantSubRow[];
 }
 
+// La chiave è "Colore-Taglia": la taglia non contiene trattini, il colore sì (es. "Blu-notte")
 function splitVariantKey(variantKey: string | null): [string, string] {
   if (!variantKey) return ['-', '-'];
-  const idx = variantKey.indexOf('-');
+  const idx = variantKey.lastIndexOf('-');
   if (idx === -1) return [variantKey, '-'];
   return [variantKey.slice(0, idx) || '-', variantKey.slice(idx + 1) || '-'];
 }
@@ -217,6 +223,12 @@ function splitVariantKey(variantKey: string | null): [string, string] {
 function sizeSortIndex(taglia: string): number {
   const idx = DEFAULT_SIZES.indexOf(taglia);
   return idx === -1 ? DEFAULT_SIZES.length : idx;
+}
+
+// Prima per colore (alfabetico), poi per taglia dalla più piccola alla più grande
+function compareColorSize(a: { colore: string; taglia: string }, b: { colore: string; taglia: string }): number {
+  if (a.colore !== b.colore) return a.colore.localeCompare(b.colore, 'it');
+  return sizeSortIndex(a.taglia) - sizeSortIndex(b.taglia) || a.taglia.localeCompare(b.taglia);
 }
 
 export async function exportSalesToPDF(sales: Sale[], products: Product[], options: SalesExportOptions): Promise<void> {
@@ -264,10 +276,7 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
 
   const groups = Array.from(bySku.values()).sort((a, b) => b.quantity - a.quantity);
   groups.forEach((g) => {
-    g.variants.sort((a, b) => {
-      if (a.colore !== b.colore) return a.colore.localeCompare(b.colore);
-      return sizeSortIndex(a.taglia) - sizeSortIndex(b.taglia) || a.taglia.localeCompare(b.taglia);
-    });
+    g.variants.sort(compareColorSize);
   });
 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
@@ -353,7 +362,7 @@ export function exportBlankStockToPDF(garments: BlankGarment[], options: BlankSt
   const shown = garments
     .map((g) => ({
       garment: g,
-      colors: g.colors.filter(
+      colors: [...g.colors].sort((a, b) => a.localeCompare(b, 'it')).filter(
         (color) => !options.onlyInStock || g.sizes.some((size) => (g.variants[variantKey(color, size)] || 0) > 0)
       ),
     }))

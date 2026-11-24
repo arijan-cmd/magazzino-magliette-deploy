@@ -180,7 +180,7 @@ export async function exportQrLabels(products: Product[]): Promise<void> {
   products.forEach((p) => {
     const hasVariants = p.sizes.length > 0 && p.colors.length > 0;
     if (hasVariants) {
-      p.colors.forEach((colore) =>
+      [...p.colors].sort((a, b) => a.localeCompare(b, 'it')).forEach((colore) =>
         sortSizes(p.sizes).forEach((taglia) => {
           const key = variantKey(colore, taglia);
           const qty = p.variants[key] || 0;
