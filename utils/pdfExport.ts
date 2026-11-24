@@ -33,27 +33,61 @@ function getImageFormat(dataUrl: string): LoadedImage['format'] {
   return 'JPEG';
 }
 
-async function loadImageAsDataUrl(url: string): Promise<LoadedImage | null> {
+// Le foto vengono mostrate in un quadratino di ~12 mm: le ridimensioniamo a 120 px
+// (circa 250 dpi) e le ricomprimiamo in JPEG, così il PDF resta leggero.
+const THUMB_PX = 120;
+const THUMB_QUALITY = 0.72;
+const imageCache = new Map<string, Promise<LoadedImage | null>>();
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+function loadHtmlImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function fetchThumbnail(url: string): Promise<LoadedImage | null> {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
-    const blob = await response.blob();
-    const dataUrl = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-    const dimensions = await new Promise<{ width: number; height: number }>((resolve, reject) => {
-      const img = new window.Image();
-      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-    return { dataUrl, ...dimensions, format: getImageFormat(dataUrl) };
+    const originalUrl = await blobToDataUrl(await response.blob());
+    const img = await loadHtmlImage(originalUrl);
+    const scale = Math.min(1, THUMB_PX / Math.max(img.naturalWidth, img.naturalHeight));
+    const width = Math.max(1, Math.round(img.naturalWidth * scale));
+    const height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return { dataUrl: originalUrl, width: img.naturalWidth, height: img.naturalHeight, format: getImageFormat(originalUrl) };
+    ctx.fillStyle = '#ffffff'; // JPEG non ha trasparenza
+    ctx.fillRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+    return { dataUrl: canvas.toDataURL('image/jpeg', THUMB_QUALITY), width, height, format: 'JPEG' };
   } catch {
     return null;
   }
+}
+
+// Stessa foto → una sola scaricata e ridimensionata
+function loadImageAsDataUrl(url: string): Promise<LoadedImage | null> {
+  let cached = imageCache.get(url);
+  if (!cached) {
+    cached = fetchThumbnail(url);
+    imageCache.set(url, cached);
+  }
+  return cached;
 }
 
 function drawImageCell(doc: jsPDF, data: CellHookData, image: LoadedImage | null | undefined) {
@@ -102,7 +136,7 @@ export async function exportInventoryToPDF(products: Product[], options: Invento
   const filtered = products
     .filter((p) => (options.onlyInStock ? p.quantity > 0 : true))
     .filter((p) => options.categories.includes(p.category));
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
 
   const allCategories = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
   const categoryLabel =
@@ -236,7 +270,7 @@ export async function exportSalesToPDF(sales: Sale[], products: Product[], optio
     });
   });
 
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const rangeLabel = options.from || options.to ? `${options.from || '...'} → ${options.to || '...'}` : 'tutte le date';
   const paymentLabel = options.paymentMethod === 'all' ? '' : ` · ${options.paymentMethod === 'contanti' ? 'Contanti' : 'Carta'}`;
   const allCategoriesInProducts = Array.from(new Set(products.map((p) => p.category))).filter(Boolean);
@@ -313,7 +347,7 @@ export interface BlankStockExportOptions {
 }
 
 export function exportBlankStockToPDF(garments: BlankGarment[], options: BlankStockExportOptions): void {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   const pageHeight = doc.internal.pageSize.getHeight();
 
   const shown = garments
