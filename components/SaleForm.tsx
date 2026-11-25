@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ShoppingCart } from '@phosphor-icons/react';
 import { formatCurrency, sortSizes, variantKey } from '../constants';
 import { PaymentMethod, Product } from '../types';
@@ -15,13 +15,14 @@ interface SaleFormProps {
   }) => void;
   initialProductId?: string | null;
   initialVariantKey?: string | null;
+  scanNonce?: number; // cambia a ogni lettura con la pistola
 }
 
 const inputClass =
   'w-full px-3.5 py-2.5 bg-slate-50 dark:bg-night-800 border border-slate-200 dark:border-night-700 rounded-xl text-sm text-slate-900 dark:text-night-100 outline-none transition focus:bg-white dark:focus:bg-night-800 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 dark:focus:ring-brand-900/40';
 const labelClass = 'block text-xs font-bold text-slate-500 dark:text-night-400 mb-1.5';
 
-export default function SaleForm({ products, onSell, initialProductId, initialVariantKey }: SaleFormProps) {
+export default function SaleForm({ products, onSell, initialProductId, initialVariantKey, scanNonce }: SaleFormProps) {
   const [productId, setProductId] = useState('');
   const [variant, setVariant] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -30,6 +31,8 @@ export default function SaleForm({ products, onSell, initialProductId, initialVa
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('contanti');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [scanInfo, setScanInfo] = useState<string | null>(null);
+  const handledScanRef = useRef<number | undefined>(undefined);
 
   const sellable = useMemo(() => products.filter((p) => p.quantity > 0), [products]);
   const selectedProduct = products.find((p) => p.id === productId) || null;
@@ -54,11 +57,38 @@ export default function SaleForm({ products, onSell, initialProductId, initialVa
   }, [selectedProduct]);
 
   useEffect(() => {
-    if (initialProductId) {
-      setProductId(initialProductId);
-      setVariant(initialVariantKey || '');
+    if (!initialProductId) return;
+    const wantedVariant = initialVariantKey || '';
+    const isNewScan = scanNonce !== undefined && scanNonce !== handledScanRef.current;
+    if (isNewScan) {
+      handledScanRef.current = scanNonce;
+      const scanned = products.find((p) => p.id === initialProductId);
+      const label = scanned ? `${scanned.name}${wantedVariant ? ` · ${wantedVariant.replace('-', ' / ')}` : ''}` : '';
+      if (productId === initialProductId && variant === wantedVariant) {
+        // stessa etichetta letta di nuovo: +1 pezzo (senza superare la scorta)
+        const stock = scanned ? (wantedVariant ? scanned.variants[wantedVariant] || 0 : scanned.quantity) : 0;
+        setQuantity((q) => Math.min(q + 1, Math.max(stock, 1)));
+      } else {
+        setProductId(initialProductId);
+        setVariant(wantedVariant);
+        setQuantity(1);
+      }
+      setError(null);
+      setSuccess(false);
+      setScanInfo(`Letto: ${label}`);
+      return;
     }
-  }, [initialProductId, initialVariantKey]);
+    if (scanNonce === undefined) {
+      setProductId(initialProductId);
+      setVariant(wantedVariant);
+    }
+  }, [initialProductId, initialVariantKey, scanNonce]);
+
+  useEffect(() => {
+    if (!scanInfo) return;
+    const t = setTimeout(() => setScanInfo(null), 4000);
+    return () => clearTimeout(t);
+  }, [scanInfo]);
 
   const availableQuantity = selectedProduct
     ? variantKeys.length > 0
@@ -114,7 +144,7 @@ export default function SaleForm({ products, onSell, initialProductId, initialVa
         </div>
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">Registra vendita</h2>
-          <p className="text-sm text-slate-400 dark:text-night-500 font-medium">Punto vendita</p>
+          <p className="text-sm text-slate-400 dark:text-night-500 font-medium">Punto vendita · lettore QR pronto: leggi un'etichetta</p>
         </div>
       </div>
       <form
@@ -208,6 +238,11 @@ export default function SaleForm({ products, onSell, initialProductId, initialVa
         {error && (
           <p className="text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-900/40 rounded-lg px-3 py-2">
             {error}
+          </p>
+        )}
+        {scanInfo && (
+          <p className="text-xs font-semibold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-800/50 rounded-lg px-3 py-2">
+            {scanInfo}
           </p>
         )}
         {success && (

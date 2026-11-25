@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './services/firebase';
 import { sortSizes } from './constants';
+import { useBarcodeScanner } from './hooks/useBarcodeScanner';
 import { OperationType, handleFirestoreError } from './services/firestore';
 import { uploadProductImages, deleteProductImage } from './services/storage';
 import Layout from './components/Layout';
@@ -74,7 +75,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>(ViewType.DASHBOARD);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [pendingSale, setPendingSale] = useState<{ productId: string; variantKey: string | null } | null>(null);
+  const [pendingSale, setPendingSale] = useState<{ productId: string; variantKey: string | null; scanNonce?: number } | null>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
@@ -227,6 +228,57 @@ export default function App() {
       window.history.replaceState(null, '', url.toString());
     }
   }, [products]);
+
+  // Pistola lettore QR: il codice è l'indirizzo dell'etichetta (…?vendi=SKU&variante=Colore-Taglia) oppure il solo SKU
+  const scanCounterRef = useRef(0);
+  const handleScan = useCallback(
+    (raw: string): boolean => {
+      const text = raw.trim();
+      let skuText: string | null = null;
+      let varianteText: string | null = null;
+      try {
+        const params = new URL(text).searchParams;
+        skuText = params.get('vendi');
+        varianteText = params.get('variante');
+      } catch {
+        const m = text.match(/vendi=([^&]+)(?:&variante=(.+))?/i);
+        if (m) {
+          skuText = decodeURIComponent(m[1]);
+          varianteText = m[2] ? decodeURIComponent(m[2]) : null;
+        }
+      }
+      const looksLikeLabel = skuText !== null;
+      const wanted = (skuText ?? text).trim().toLowerCase();
+      const product = products.find((p) => p.sku.trim().toLowerCase() === wanted);
+      if (!product) {
+        if (looksLikeLabel) {
+          setActionError(`Prodotto non trovato per il codice letto (${skuText}).`);
+          return true;
+        }
+        return false; // testo qualunque: lo lascio al campo in cui si stava scrivendo
+      }
+
+      let variantKeyValue: string | null = null;
+      if (varianteText) {
+        const target = varianteText.trim().toLowerCase();
+        variantKeyValue = Object.keys(product.variants).find((k) => k.toLowerCase() === target) ?? null;
+      }
+      const available = variantKeyValue ? product.variants[variantKeyValue] || 0 : product.quantity;
+      if (available <= 0) {
+        setActionError(
+          `Esaurito: ${product.name}${variantKeyValue ? ` (${variantKeyValue.replace('-', ' / ')})` : ''} non è disponibile in magazzino.`
+        );
+        return true;
+      }
+      setActionError(null);
+      scanCounterRef.current += 1;
+      setPendingSale({ productId: product.id, variantKey: variantKeyValue, scanNonce: scanCounterRef.current });
+      setActiveView(ViewType.POS);
+      return true;
+    },
+    [products]
+  );
+  useBarcodeScanner(handleScan, !!user && products.length > 0);
 
   const runAction = useCallback(async (fn: () => Promise<void>) => {
     setActionError(null);
@@ -848,6 +900,7 @@ export default function App() {
               onSell={sellProduct}
               initialProductId={pendingSale?.productId ?? null}
               initialVariantKey={pendingSale?.variantKey ?? null}
+              scanNonce={pendingSale?.scanNonce}
             />
             <SalesLog sales={sales} isAdmin={isAdmin} onCancelSale={cancelSale} onEmitReceipt={retryReceipt} onMarkEmitted={markReceiptEmitted} />
           </div>
