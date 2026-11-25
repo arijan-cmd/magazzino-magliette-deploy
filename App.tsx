@@ -232,49 +232,56 @@ export default function App() {
   // Pistola lettore QR: il codice è l'indirizzo dell'etichetta (…?vendi=SKU&variante=Colore-Taglia) oppure il solo SKU
   const scanCounterRef = useRef(0);
   const handleScan = useCallback(
-    (raw: string): boolean => {
-      const text = raw.trim();
-      let skuText: string | null = null;
-      let varianteText: string | null = null;
-      try {
-        const params = new URL(text).searchParams;
-        skuText = params.get('vendi');
-        varianteText = params.get('variante');
-      } catch {
-        const m = text.match(/vendi=([^&]+)(?:&variante=(.+))?/i);
-        if (m) {
-          skuText = decodeURIComponent(m[1]);
-          varianteText = m[2] ? decodeURIComponent(m[2]) : null;
+    (candidates: string[]): boolean => {
+      let missing: string | null = null;
+      for (const raw of candidates) {
+        const text = raw.trim();
+        let skuText: string | null = null;
+        let varianteText: string | null = null;
+        try {
+          const params = new URL(text).searchParams;
+          skuText = params.get('vendi');
+          varianteText = params.get('variante');
+        } catch {
+          const m = text.match(/vendi=([^&]+)(?:&variante=(.+))?/i);
+          if (m) {
+            try {
+              skuText = decodeURIComponent(m[1]);
+              varianteText = m[2] ? decodeURIComponent(m[2]) : null;
+            } catch {
+              skuText = m[1];
+              varianteText = m[2] ?? null;
+            }
+          }
         }
-      }
-      const looksLikeLabel = skuText !== null;
-      const wanted = (skuText ?? text).trim().toLowerCase();
-      const product = products.find((p) => p.sku.trim().toLowerCase() === wanted);
-      if (!product) {
-        if (looksLikeLabel) {
-          setActionError(`Prodotto non trovato per il codice letto (${skuText}).`);
+        if (skuText !== null) missing = skuText;
+        const wanted = (skuText ?? text).trim().toLowerCase();
+        const product = products.find((p) => p.sku.trim().toLowerCase() === wanted);
+        if (!product) continue;
+
+        let variantKeyValue: string | null = null;
+        if (varianteText) {
+          const target = varianteText.trim().toLowerCase();
+          variantKeyValue = Object.keys(product.variants).find((k) => k.toLowerCase() === target) ?? null;
+        }
+        const available = variantKeyValue ? product.variants[variantKeyValue] || 0 : product.quantity;
+        if (available <= 0) {
+          setActionError(
+            `Esaurito: ${product.name}${variantKeyValue ? ` (${variantKeyValue.replace('-', ' / ')})` : ''} non è disponibile in magazzino.`
+          );
           return true;
         }
-        return false; // testo qualunque: lo lascio al campo in cui si stava scrivendo
-      }
-
-      let variantKeyValue: string | null = null;
-      if (varianteText) {
-        const target = varianteText.trim().toLowerCase();
-        variantKeyValue = Object.keys(product.variants).find((k) => k.toLowerCase() === target) ?? null;
-      }
-      const available = variantKeyValue ? product.variants[variantKeyValue] || 0 : product.quantity;
-      if (available <= 0) {
-        setActionError(
-          `Esaurito: ${product.name}${variantKeyValue ? ` (${variantKeyValue.replace('-', ' / ')})` : ''} non è disponibile in magazzino.`
-        );
+        setActionError(null);
+        scanCounterRef.current += 1;
+        setPendingSale({ productId: product.id, variantKey: variantKeyValue, scanNonce: scanCounterRef.current });
+        setActiveView(ViewType.POS);
         return true;
       }
-      setActionError(null);
-      scanCounterRef.current += 1;
-      setPendingSale({ productId: product.id, variantKey: variantKeyValue, scanNonce: scanCounterRef.current });
-      setActiveView(ViewType.POS);
-      return true;
+      if (missing !== null) {
+        setActionError(`Prodotto non trovato per il codice letto (${missing}).`);
+        return true;
+      }
+      return false; // testo qualunque: lo lascio al campo in cui si stava scrivendo
     },
     [products]
   );
