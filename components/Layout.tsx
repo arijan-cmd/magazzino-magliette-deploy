@@ -139,7 +139,7 @@ function LoginForm() {
       <div className="relative w-full max-w-sm bg-white/90 dark:bg-night-900/90 backdrop-blur rounded-3xl shadow-soft border border-slate-200/80 dark:border-night-800 p-8">
         <div className="flex flex-col items-center mb-7">
           <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-card mb-4">
-            <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
+            <img src="/icon-192-v3.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <h1 className="text-xl font-extrabold text-slate-900 dark:text-white text-center tracking-tight">{APP_NAME}</h1>
           <p className="text-[11px] font-bold text-slate-400 dark:text-night-500 text-center uppercase tracking-widest mt-1">
@@ -314,7 +314,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
       <aside className="hidden md:flex md:w-64 bg-gradient-to-b from-[#12198f] to-[#0a1166] text-white md:flex-col shrink-0 md:h-screen md:sticky md:top-0 dark:border-r dark:border-night-950/60">
         <div className="p-5 flex items-center gap-3 border-b border-white/10">
           <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 shadow-[0_0_18px_rgba(34,228,240,0.55)]">
-            <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
+            <img src="/icon-192-v3.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
             <h1 className="font-extrabold text-sm tracking-tight truncate">{APP_NAME}</h1>
@@ -377,7 +377,7 @@ export default function Layout({ user, authLoading, lowStockCount, activeView, o
       <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between gap-3 px-4 pt-[calc(env(safe-area-inset-top)+0.625rem)] pb-2.5 bg-white/85 dark:bg-night-900/85 backdrop-blur-lg border-b border-slate-200/80 dark:border-night-800">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl overflow-hidden shrink-0">
-            <img src="/icon-192-v2.png" alt={APP_NAME} className="w-full h-full object-cover" />
+            <img src="/icon-192-v3.png" alt={APP_NAME} className="w-full h-full object-cover" />
           </div>
           <div className="min-w-0">
             <p className="text-sm font-extrabold text-slate-900 dark:text-white truncate leading-tight">{APP_NAME}</p>
